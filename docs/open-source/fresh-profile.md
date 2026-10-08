@@ -87,6 +87,7 @@ and a reason explaining the missing prerequisite.
 | `github` | `account`: text | Account name and installed gh; sign in separately |
 | `git` | `roots`: list of paths | At least one existing folder and installed git |
 | `notify` | `topic`: secret; optional `url`: HTTPS URL | Private ntfy topic; enabling also sets notify.enabled |
+| `almanac` | `name`, `latitude`, `longitude`, `timezone`: text | All four place fields; coordinates are saved as numbers |
 | All others | `{}` | Existing files, tools or configuration in the inventory below |
 
 For example, connect a calendar without restarting:
@@ -116,12 +117,39 @@ refresh is queued. The response is the connector's new status, without settings.
 Calendar, GitHub, AI sessions, AI usage, Git, Tailscale, link metadata, previews,
 Tell, to-do ranking, delegations, almanac, notifications and nudges can switch live.
 Their refresh/history/reminder timers start once on enable and stop on disable.
-Already running requests or agent work may finish. Almanac weather currently uses
-its fixed Belfast location, so setup offers no place fields. `artwork`,
+Already running requests or agent work may finish. `artwork`,
 `heartHealth`, `money`, `voice` and `stashSummary` retain boot-time constructors
 or workers: their status has `live:false` and PUT adds `needsRestart:true`.
 Live connectors omit `needsRestart`. Manual configuration for connectors with
 `needs:[]` still uses the existing tools and config format.
+
+Portable profiles have no default place. Set `place` in config to
+`{"name":"Tokyo","latitude":35.6762,"longitude":139.6503,"timezone":"Asia/Tokyo"}`,
+or use the almanac setup fields:
+
+```http
+PUT /api/setup/connectors/almanac
+Content-Type: application/json
+
+{"enabled":true,"settings":{"name":"Tokyo","latitude":"35.6762","longitude":"139.6503","timezone":"Asia/Tokyo"}}
+```
+
+Setup saves these values under `place`, leaving other connector settings alone.
+Latitude must be from -90 to 90, longitude from -180 to 180, and timezone must be
+an IANA timezone accepted by `Intl.DateTimeFormat`. Supply a complete place on
+its first save; later settings can change individual fields. Omitted settings
+retain the place, including when disabling the connector. Use `place:null` in
+config to remove it. The dashboard and phone receive its name as
+`state.location.name`, including while almanac network access is off.
+
+Weather, sunrise/sunset and local moon dates use that place. Without one, sky
+and moon items are omitted and no weather request runs. Other enabled almanac
+sources still work; daily picks use UTC until a place is set. Weather caches and
+stale fallbacks are kept separate by place. The weather call sends coordinates
+and timezone to Open-Meteo through the existing public-network guard, only when
+the almanac connector is enabled. There is no place lookup endpoint in this
+release. Configs without a profile marker retain the original Belfast weather,
+moon timezone, request URL and user agent without a config change or migration.
 
 There is no demo-data creation API. `npm run demo` remains the isolated demo.
 

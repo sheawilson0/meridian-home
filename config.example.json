@@ -7,6 +7,7 @@
   "location": {
     "name": "Your location"
   },
+  "place": null,
   "token": "",
   "mcpToken": "",
   "board": {

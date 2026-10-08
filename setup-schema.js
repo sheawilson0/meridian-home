@@ -1,5 +1,7 @@
 'use strict';
 
+const { validatePlace } = require('./place');
+
 // Keep setup fields and copy together so the dashboard can build its form.
 const SCHEMA = {
   calendar: { needs: [{ key: 'icsUrls', label: 'Calendar links', kind: 'list', required: true, placeholder: 'https://example.com/calendar.ics', help: 'One link per line. In Google Calendar it’s under Settings, your calendar, “Secret address in iCal format”.' }], reason: 'Needs a calendar link.' },
@@ -9,7 +11,12 @@ const SCHEMA = {
   git: { needs: [{ key: 'roots', label: 'Project folders', kind: 'list', required: true, placeholder: '/home/you/projects', help: 'Folders that hold your projects, one per line.' }], reason: 'Needs git and a folder of projects.' },
   tailscale: { needs: [], reason: 'Needs Tailscale, signed in.' },
   linkMetadata: { needs: [] },
-  almanac: { needs: [], reason: 'The weather is for Belfast for now.' },
+  almanac: { needs: [
+    { key: 'name', label: 'Town or city', kind: 'text', required: true, placeholder: 'Edinburgh', help: 'The name shown with the weather.' },
+    { key: 'latitude', label: 'Latitude', kind: 'text', required: true, placeholder: '55.953', help: 'Use where I am fills this in.' },
+    { key: 'longitude', label: 'Longitude', kind: 'text', required: true, placeholder: '-3.188', help: 'Use where I am fills this in.' },
+    { key: 'timezone', label: 'Timezone', kind: 'text', required: true, placeholder: 'Europe/London', help: 'Filled in from this computer.' },
+  ], reason: 'Needs a place for the weather and sky.' },
   notify: { needs: [
     { key: 'topic', label: 'ntfy topic', kind: 'secret', required: true, help: 'Pick a name nobody would guess. Meridian keeps it and never shows it again.' },
     { key: 'url', label: 'ntfy server', kind: 'url', required: false, placeholder: 'https://ntfy.sh' },
@@ -79,13 +86,21 @@ function validate(name, input, config, { calendarConfigured = false, savedCalend
       if (name === 'github' && value && !/^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(value)) throw fail('account must be a GitHub account name');
       if (name === 'notify' && field.key === 'topic' && value && !/^[a-z\d_-]{1,200}$/i.test(value)) throw fail('topic must use letters, numbers, underscores or hyphens');
     }
+    if (name === 'almanac' && ['latitude', 'longitude'].includes(field.key)) {
+      if (!value || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value)) throw fail(`${field.key} must be a number`);
+      value = Number(value);
+    }
     patch[field.key] = value;
   }
-  const section = { ...(config[name] || {}), ...patch };
+  const section = { ...(config[name === 'almanac' ? 'place' : name] || {}), ...patch };
+  if (name === 'almanac' && (input.enabled || Object.keys(section).length)) {
+    try { validatePlace(section); }
+    catch (error) { throw fail(error.message); }
+  }
   if (input.enabled) {
     for (const field of needs.filter(field => field.required)) {
       const value = section[field.key];
-      const present = field.kind === 'bool' ? typeof value === 'boolean' : field.kind === 'list' ? Array.isArray(value) && value.length > 0 : typeof value === 'string' && Boolean(value.trim());
+      const present = name === 'almanac' && ['latitude', 'longitude'].includes(field.key) ? typeof value === 'number' && Number.isFinite(value) : field.kind === 'bool' ? typeof value === 'boolean' : field.kind === 'list' ? Array.isArray(value) && value.length > 0 : typeof value === 'string' && Boolean(value.trim());
       if (!present && !(name === 'calendar' && (savedCalendar || !Object.hasOwn(patch, 'icsUrls') && calendarConfigured))) throw fail(`${field.key} is required`);
     }
   }

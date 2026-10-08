@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const runtime = require('./runtime');
+const { validatePlace } = require('./place');
 
 function executable(name) {
   if (!name) return false;
@@ -51,6 +52,7 @@ function savedFeeds() {
 }
 
 function validate(config) {
+  validatePlace(config.place);
   for (const key of ['board', 'fleet', 'git', 'brain', 'threads', 'calendar', 'journal', 'notify', 'stash', 'connectors']) {
     if (!config[key] || typeof config[key] !== 'object' || Array.isArray(config[key])) throw new Error(`Config ${key} must be an object`);
   }
@@ -114,7 +116,7 @@ function load(file, { log = console } = {}) {
     fs.mkdirSync(runtime.DATA_DIR, { recursive: true, mode: 0o700 });
     save(file, config);
   }
-  runtime.configure({ portable, fresh, connectors: portable ? connectorStatus(config) : {} });
+  runtime.configure({ portable, fresh, place: portable ? validatePlace(config.place) : null, connectors: portable ? connectorStatus(config) : {} });
   return config;
 }
 

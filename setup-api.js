@@ -22,14 +22,15 @@ function createSetup({ config, file, queue, calendarUrl, onChange = () => {} }) 
         savedCalendar: firstRun.savedFeeds(),
       });
       const next = JSON.parse(JSON.stringify(config));
-      if (Object.keys(patch).length) next[name] = { ...(next[name] || {}), ...patch };
+      const section = name === 'almanac' ? 'place' : name;
+      if (Object.keys(patch).length) next[section] = { ...(next[section] || {}), ...patch };
       if (name === 'calendar' && Object.hasOwn(patch, 'icsUrls')) next.calendar.icsUrl = '';
       if (name === 'notify') next.notify.enabled = enabled;
       next.connectors[name] = { enabled };
       // Publish the new profile only after both private files have been saved.
       firstRun.save(file, next);
       Object.assign(config, next);
-      runtime.updateConnectors(firstRun.connectorStatus(config));
+      runtime.updateConnectors(firstRun.connectorStatus(config), config.place);
       await onChange(name);
       const connector = status().connectors[name];
       return { ...connector, ...(!connector.live ? { needsRestart: true } : {}) };

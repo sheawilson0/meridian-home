@@ -2754,7 +2754,7 @@ function refreshDiskState() {
     sources.observe('github', github.source());
     sources.observe('todoRank', ranker.source());
     state = {
-      at: Date.now(), sources: sources.snapshot(), machine: CONFIG.machine, location: CONFIG.location,
+      at: Date.now(), sources: sources.snapshot(), machine: CONFIG.machine, location: runtime.portableProfile() ? { name: runtime.configuredPlace()?.name || '' } : CONFIG.location,
       board: { cards: [] }, projects, links, todos: syncedTodos, deadlines,
       ai: { sessions: [], liveCount: 0, todayCount: 0 }, fleet: { services: [], sites: [], agents: [] },
       git: { repos: [] }, brain: {}, threads: { tasks: [] }, calendar: { events: [], configured: false },

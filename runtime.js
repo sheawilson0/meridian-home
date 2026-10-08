@@ -18,8 +18,9 @@ const SANDBOX = process.env.MERIDIAN_SANDBOX === '1';
 const JOBS_ENABLED = !SANDBOX && process.env.MERIDIAN_JOBS !== 'off';
 let profile = null;
 function configure(value) { profile = value; }
-function updateConnectors(connectors) { if (profile?.portable) profile.connectors = connectors; }
+function updateConnectors(connectors, place = profile?.place) { if (profile?.portable) { profile.connectors = connectors; profile.place = place; } }
 function connectorEnabled(name) { return JOBS_ENABLED && (!profile?.portable || profile.connectors[name]?.enabled === true); }
+function configuredPlace() { return profile?.portable ? profile.place || null : null; }
 function portableProfile() { return Boolean(profile?.portable); }
 function setup() { return profile?.portable ? { fresh: profile.fresh, demo: DEMO, connectors: profile.connectors } : null; }
 if (demoRoot) {
@@ -51,4 +52,4 @@ function installGuards() {
   require('node:module').syncBuiltinESMExports();
 }
 
-module.exports = { ROOT, DATA_DIR, STORAGE_ROOT, CACHE_DIR, LOG_DIR, CONFIG_FILE, SANDBOX, JOBS_ENABLED, DEMO, defaultDataDir, configure, updateConnectors, connectorEnabled, portableProfile, setup, jobsOffError, installGuards };
+module.exports = { ROOT, DATA_DIR, STORAGE_ROOT, CACHE_DIR, LOG_DIR, CONFIG_FILE, SANDBOX, JOBS_ENABLED, DEMO, defaultDataDir, configure, updateConnectors, connectorEnabled, configuredPlace, portableProfile, setup, jobsOffError, installGuards };

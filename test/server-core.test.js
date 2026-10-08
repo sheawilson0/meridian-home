@@ -377,7 +377,8 @@ test('preview transitions allow only HTTP(S), including redirects and meta refre
   assert.equal(await ctx.resolveMetaRefresh(base + '/safe'), base + '/final');
 });
 
-test('Chrome spawn failure resolves false and cleans its profile and timers', async (t) => {
+// Link previews use Chrome on a Mac only (previews connector); elsewhere nothing is spawned to fail.
+test('Chrome spawn failure resolves false and cleans its profile and timers', { skip: process.platform !== 'darwin' && 'link previews are Mac-only' }, async (t) => {
   let profile;
   const h = harness(t, { spawn: (bin, args, opts) => {
     profile = args.find((a) => a.startsWith('--user-data-dir=')).slice('--user-data-dir='.length);

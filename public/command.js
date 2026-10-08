@@ -360,6 +360,12 @@ async function openConnect(focus){
     const go=form.querySelector('.primary'); go.disabled=true;
     try{ const j=await put(name,{enabled:true,settings}); await after(name,j,true); }catch(err){ toast(err.message); go.disabled=false; }
   });
+  // The weather needs a place: the browser already knows the timezone, and can offer where you are.
+  const alm=box.querySelector('[data-cn="almanac"] .cn-fields');
+  if(alm){ const tz=alm.elements.timezone; if(tz&&!tz.value)tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+    if(navigator.geolocation&&alm.elements.latitude){ const b=document.createElement('button'); b.type='button'; b.className='btn sm ghost'; b.innerHTML=`${icon('pin')}Use where I am`;
+      b.addEventListener('click',()=>{ b.disabled=true; navigator.geolocation.getCurrentPosition(p=>{ alm.elements.latitude.value=p.coords.latitude.toFixed(4); alm.elements.longitude.value=p.coords.longitude.toFixed(4); b.disabled=false; alm.elements.name?.focus(); },()=>{ toast("Couldn't get your location. Type the numbers instead."); b.disabled=false; },{timeout:10000}); });
+      alm.querySelector('.foot').prepend(b); } }
   document.body.appendChild(box); openSheet('sheet-connect');
   if(focus){ const r=box.querySelector(`[data-cn="${focus}"]`); r?.scrollIntoView({block:'nearest'}); if(!data.connectors[focus]?.enabled)r?.querySelector('[data-cn-act]')?.click(); }
 }

@@ -162,6 +162,7 @@ const meteo = {
 
 test('sky starts the hourly strip at the current hour', () => {
   const sky = almanac.buildSky(meteo);
+  assert.equal(sky.place, 'Belfast');
   assert.equal(sky.hours[0].time, '23:00');
   assert.equal(sky.hours.length, 12);
   assert.equal(sky.hours[1].time, '00:00');
@@ -284,4 +285,105 @@ test('a malformed upstream redirect rejects without escaping the response callba
     ready(); res.complete = true; res.end();
   });
   await assert.rejects(almanac.fetchRaw('https://example.test/'), /bad redirect/);
+});
+
+test('portable profiles without a place omit sky and moon and never request weather', async t => {
+  const runtime = require('../runtime');
+  t.after(() => runtime.configure({ portable: false, connectors: {} }));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'almanac-place-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const net = fakeNet();
+  runtime.configure({ portable: true, place: null, connectors: { almanac: { enabled: false } } });
+  const source = almanac.createAlmanac({ dir, fetch: net.fetch, now: () => new Date('2026-10-01T08:00:00Z'), log: () => {} });
+  const empty = await source.getAlmanac();
+  assert.equal(net.calls.length, 0, 'an unconfigured fresh profile makes no outbound request');
+  assert.equal(Object.hasOwn(empty.items, 'sky'), false);
+  assert.equal(Object.hasOwn(empty.items, 'moon'), false);
+
+  // A manually enabled almanac still supplies sources that do not need a place.
+  runtime.updateConnectors({ almanac: { enabled: true } });
+  const daily = await source.getAlmanac();
+  assert.ok(daily.items.colours.colours.length);
+  assert.ok(net.calls.length > 0);
+  assert.equal(net.calls.some(url => new URL(url).host === 'api.open-meteo.com'), false);
+  assert.equal(Object.hasOwn(daily.items, 'sky'), false);
+  assert.equal(Object.hasOwn(daily.items, 'moon'), false);
+});
+
+test('portable weather and moon use the place, and cached weather never crosses places', async t => {
+  const runtime = require('../runtime');
+  t.after(() => runtime.configure({ portable: false, connectors: {} }));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'almanac-place-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  let time = new Date('2026-10-01T00:30:00Z');
+  const place = { name: 'New York', latitude: 40.7128, longitude: -74.006, timezone: 'America/New_York' };
+  runtime.configure({ portable: true, place, connectors: { almanac: { enabled: true } } });
+  const down = new Set(), net = fakeNet(down);
+  const options = { dir, fetch: net.fetch, now: () => time, log: () => {} };
+  const source = almanac.createAlmanac(options);
+  const first = await source.getAlmanac();
+  assert.equal(first.date, '2026-09-30');
+  assert.equal(first.items.sky.place, 'New York');
+  assert.equal(first.items.sky.today.sunrise, '07:25');
+  assert.equal(first.items.sky.today.sunset, '18:59');
+  const url = new URL(net.calls.find(url => new URL(url).host === 'api.open-meteo.com'));
+  assert.equal(url.searchParams.get('latitude'), '40.7128');
+  assert.equal(url.searchParams.get('longitude'), '-74.006');
+  assert.equal(url.searchParams.get('timezone'), 'America/New_York');
+  assert.deepEqual(first.items.moon, almanac.moonPhase(time, place.timezone));
+
+  down.add('api.open-meteo.com');
+  time = new Date('2026-10-02T00:30:00Z');
+  const stale = await source.getAlmanac();
+  assert.equal(stale.items.sky.place, place.name);
+  assert.equal(stale.items.sky.stale, true, 'same-place fallback remains available across days');
+
+  const changed = { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503, timezone: 'Asia/Tokyo' };
+  runtime.updateConnectors({ almanac: { enabled: true } }, changed);
+  const unavailable = await source.getAlmanac();
+  assert.match(unavailable.items.sky.error, /503/);
+  assert.equal(unavailable.items.sky.place, undefined, 'previous-place forecast is not used as fallback');
+  const restarted = await almanac.createAlmanac(options).getAlmanac();
+  assert.equal(restarted.items.sky.place, undefined, 'disk history cannot restore previous-place weather');
+  down.clear();
+  const fresh = await source.getAlmanac({ force: true });
+  assert.equal(fresh.items.sky.place, changed.name);
+  assert.notEqual(fresh.items.moon.nextNew.date, almanac.moonPhase(time).nextNew.date);
+  runtime.updateConnectors({ almanac: { enabled: true } }, null);
+  const calls = net.calls.length;
+  const removed = await source.getAlmanac();
+  assert.equal(Object.hasOwn(removed.items, 'sky'), false);
+  assert.equal(Object.hasOwn(removed.items, 'moon'), false);
+  assert.equal(net.calls.length, calls, 'removing the place does not start another weather request');
+});
+
+test('legacy almanac retains the exact Belfast forecast URL and labels', async t => {
+  const runtime = require('../runtime');
+  runtime.configure({ portable: false, place: { name: 'Ignored' }, connectors: {} });
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'almanac-legacy-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const net = fakeNet();
+  const daily = await almanac.createAlmanac({ dir, fetch: net.fetch, now: () => new Date('2026-10-01T08:00:00Z'), log: () => {} }).getAlmanac();
+  assert.equal(daily.items.sky.place, 'Belfast');
+  assert.equal(net.calls.find(url => new URL(url).host === 'api.open-meteo.com'),
+    'https://api.open-meteo.com/v1/forecast?latitude=54.597&longitude=-5.930'
+    + '&current=temperature_2m,apparent_temperature,weather_code,cloud_cover,is_day,wind_speed_10m,precipitation'
+    + '&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max'
+    + '&hourly=temperature_2m,weather_code,cloud_cover,precipitation_probability&forecast_days=2&timezone=Europe%2FLondon');
+});
+
+test('outbound almanac user agent retains Belfast only for the legacy profile', async t => {
+  const runtime = require('../runtime');
+  const https = require('node:https');
+  const { mockHttps } = require('./http-fixture');
+  t.after(() => runtime.configure({ portable: false, connectors: {} }));
+  mockHttps(t, 'get', (res, _req, ready) => { ready(); res.complete = true; res.end('{}'); });
+  const send = https.get, headers = [];
+  t.mock.method(https, 'get', (url, options, callback) => { headers.push(options.headers); return send(url, options, callback); });
+  runtime.configure({ portable: false, connectors: {} });
+  await almanac.fetchRaw('https://example.test/');
+  runtime.configure({ portable: true, place: null, connectors: {} });
+  await almanac.fetchRaw('https://example.test/');
+  assert.equal(headers[0]['User-Agent'], 'Meridian/1.0 (personal dashboard; Belfast)');
+  assert.equal(headers[1]['User-Agent'], 'Meridian/1.0 (personal dashboard)');
 });

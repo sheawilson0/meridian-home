@@ -48,7 +48,7 @@ test('DNS checks every answer and pins the actual connection answer', async () =
 });
 
 // Exercise the actual fetcher with a fake HTTPS transport, never a socket.
-function fetcher(next) {
+function fetcher(next, portable = false) {
   const source = fs.readFileSync(path.join(__dirname, '..', 'almanac.js'), 'utf8');
   const code = source.slice(source.indexOf('function fetchRaw('), source.indexOf('function sniffImage('));
   const seen = [];
@@ -56,6 +56,7 @@ function fetcher(next) {
     const req = new EventEmitter(); req.destroy = () => {};
     seen.push(url.href);
     assert.equal(options.lookup, network.publicLookup);
+    assert.equal(options.headers['User-Agent'], portable ? 'Meridian/1.0 (personal dashboard)' : 'test');
     queueMicrotask(() => {
       const res = new EventEmitter(); res.resume = () => {}; res.complete = true;
       res.statusCode = next ? 302 : 200; res.headers = next ? { location: next } : {};
@@ -64,23 +65,25 @@ function fetcher(next) {
     });
     return req;
   } };
-  const ctx = vm.createContext({ https, URL, Buffer, Date, setTimeout, clearTimeout,
+  const ctx = vm.createContext({ https, URL, Buffer, Date, setTimeout, clearTimeout, runtime: { portableProfile: () => portable },
     TIMEOUT_MS: 1000, MAX_REDIRECTS: 3, UA: 'test', ...network });
   vm.runInContext(code, ctx);
   return { fetch: ctx.fetchRaw, seen };
 }
 
 test('Almanac rejects literal and redirected private destinations and non-HTTPS schemes', async () => {
-  for (const url of ['https://127.0.0.1/admin', 'https://100.100.1.1/', 'https://169.254.169.254/',
-    'https://[::1]/', 'file:///etc/passwd', 'http://public.example/']) {
-    const f = fetcher();
-    await assert.rejects(f.fetch(url)); assert.equal(f.seen.length, 0, url);
+  for (const portable of [false, true]) {
+    for (const url of ['https://127.0.0.1/admin', 'https://100.100.1.1/', 'https://169.254.169.254/',
+      'https://[::1]/', 'file:///etc/passwd', 'http://public.example/']) {
+      const f = fetcher(undefined, portable);
+      await assert.rejects(f.fetch(url)); assert.equal(f.seen.length, 0, url);
+    }
+    for (const location of ['https://127.0.0.1/admin', 'https://[::ffff:169.254.169.254]/', 'file:///etc/passwd']) {
+      const f = fetcher(location, portable);
+      await assert.rejects(f.fetch('https://public.example/image'));
+      assert.deepEqual(f.seen, ['https://public.example/image']);
+    }
+    const f = fetcher(undefined, portable);
+    assert.equal((await f.fetch('https://public.example/image')).body.toString(), 'public image');
   }
-  for (const location of ['https://127.0.0.1/admin', 'https://[::ffff:169.254.169.254]/', 'file:///etc/passwd']) {
-    const f = fetcher(location);
-    await assert.rejects(f.fetch('https://public.example/image'));
-    assert.deepEqual(f.seen, ['https://public.example/image']);
-  }
-  const f = fetcher();
-  assert.equal((await f.fetch('https://public.example/image')).body.toString(), 'public image');
 });

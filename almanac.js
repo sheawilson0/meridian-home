@@ -3,7 +3,7 @@ const runtime = require('./runtime');
 const jobsEnabled = () => runtime.connectorEnabled('almanac');
 const { CACHE_DIR } = runtime;
 // Almanac: a handful of outside things that change day by day (Earth View,
-// Wada colours, Wikimedia featured feed, Belfast sky, DSCOVR Earth, a poem,
+// Wada colours, Wikimedia featured feed, local sky, DSCOVR Earth, a poem,
 // the moon, a typeface). Zero dependencies, no API keys. Each source fails on
 // its own and falls back to its last good value (stale: true). Images are
 // fetched server-side once per day and served from cache/almanac/img so the
@@ -16,7 +16,9 @@ const crypto = require('node:crypto');
 const { checkPublicUrl, publicLookup } = require('./public-network');
 
 const UA = 'Meridian/1.0 (personal dashboard; Belfast)';
-const PLACE = { name: 'Belfast', lat: 54.597, lon: -5.930, timeZone: 'Europe/London' };
+// Unmarked installs retain the original Belfast values without a migration.
+const PLACE = { name: 'Belfast', latitude: 54.597, longitude: -5.930, timezone: 'Europe/London' };
+const getPlace = () => runtime.portableProfile() ? runtime.configuredPlace() : PLACE;
 const TIMEOUT_MS = 12000;
 const MAX_REDIRECTS = 3;
 const KEEP_DAYS = 14;
@@ -51,7 +53,7 @@ function fetchRaw(url, { timeout = TIMEOUT_MS, maxBytes = 30 * 1024 * 1024, acce
     try { checkPublicUrl(u); } catch (error) { reject(error); return; }
     const remaining = deadline - Date.now();
     if (remaining <= 0) { reject(new Error(`timed out after ${timeout / 1000} s (${u.host})`)); return; }
-    const req = https.get(u, { lookup: publicLookup, headers: { 'User-Agent': UA, 'Accept-Encoding': 'gzip, deflate, br', Accept: accept } }, res => {
+    const req = https.get(u, { lookup: publicLookup, headers: { 'User-Agent': runtime.portableProfile() ? 'Meridian/1.0 (personal dashboard)' : UA, 'Accept-Encoding': 'gzip, deflate, br', Accept: accept } }, res => {
       const status = res.statusCode;
       if (status >= 300 && status < 400 && res.headers.location) {
         res.resume(); clearTimeout(timer);
@@ -118,8 +120,8 @@ function jpegSize(buf) {
 
 // ------------------------------------------------------------------ dates and picks
 
-function londonDate(at = new Date()) {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: PLACE.timeZone }).format(at);
+function londonDate(at = new Date(), timeZone = PLACE.timezone) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(at);
 }
 function isIsoDate(value) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
@@ -293,7 +295,7 @@ function minutesBetween(a, b) {
   const x = t(a), y = t(b);
   return x == null || y == null ? null : y - x;
 }
-function buildSky(json) {
+function buildSky(json, place = PLACE) {
   const c = json?.current, d = json?.daily || {}, h = json?.hourly || {};
   if (!c || !Array.isArray(d.time)) throw new Error('Open-Meteo returned no forecast');
   const r = v => (typeof v === 'number' ? Math.round(v) : null);
@@ -322,7 +324,7 @@ function buildSky(json) {
   let summary = `${now.label}, ${temp}°C`;
   if (feels != null && temp != null && Math.abs(feels - temp) >= 2) summary += ` (feels like ${feels}°C)`;
   if (today) summary += `. High ${today.high}°, low ${today.low}°`;
-  return { place: PLACE.name, summary: summary + '.', now, today, tomorrow, hours, credit: 'Weather data by Open-Meteo.com (CC BY 4.0)', source: 'https://open-meteo.com/' };
+  return { place: place.name, summary: summary + '.', now, today, tomorrow, hours, credit: 'Weather data by Open-Meteo.com (CC BY 4.0)', source: 'https://open-meteo.com/' };
 }
 
 // ------------------------------------------------------------------ moon (Meeus, Astronomical Algorithms ch. 47-49)
@@ -385,14 +387,14 @@ function illumination(at) {
   const i = 180 - D - 6.289 * sd(Mp) + 2.100 * sd(M) - 1.274 * sd(2 * D - Mp) - 0.658 * sd(2 * D) - 0.214 * sd(2 * Mp) - 0.110 * sd(D);
   return (1 + Math.cos(i * RAD)) / 2;
 }
-function moonPhase(at = new Date()) {
+function moonPhase(at = new Date(), timezone = PLACE.timezone) {
   const events = moonEvents(at);
   const before = events.filter(e => e.at <= at), after = events.filter(e => e.at > at);
   const last = before[before.length - 1];
   const prevNew = [...before].reverse().find(e => e.type === 'new');
-  const nextOf = type => { const e = after.find(x => x.type === type); return { date: londonDate(e.at), at: e.at.toISOString(), inDays: Math.round((e.at - at) / 864e5 * 10) / 10 }; };
-  const today = londonDate(at);
-  const event = events.find(e => londonDate(e.at) === today);
+  const nextOf = type => { const e = after.find(x => x.type === type); return { date: londonDate(e.at, timezone), at: e.at.toISOString(), inDays: Math.round((e.at - at) / 864e5 * 10) / 10 }; };
+  const today = londonDate(at, timezone);
+  const event = events.find(e => londonDate(e.at, timezone) === today);
   const between = { new: 'Waxing crescent', firstQuarter: 'Waxing gibbous', full: 'Waning gibbous', lastQuarter: 'Waning crescent' };
   return {
     phase: event ? event.name : between[last.type],
@@ -499,13 +501,17 @@ function parseImageRequest(pathname, params) {
 
 // ------------------------------------------------------------------ the almanac
 
-function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw, now = () => new Date(), log = (...args) => console.error(...args) } = {}) {
+function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw, place = getPlace, now = () => new Date(), log = (...args) => console.error(...args) } = {}) {
+  const placeKey = value => value ? JSON.stringify([value.name, value.latitude, value.longitude, value.timezone]) : null;
+  const localDate = at => londonDate(at, place()?.timezone || 'UTC');
+  const matchesSky = day => !runtime.portableProfile() || day?.meta?.sky?.place === placeKey(place());
   const imgDir = path.join(dir, 'img');
   const dataDir = path.join(dir, 'data');
   let current = null; // { date, generatedAt, items, meta }
   let lastGood = null; // newest good value per item, across days
   let inflight = null;
   let prunedFor = null;
+  let skyPlace = placeKey(place());
 
   const fetchJson = async url => JSON.parse((await fetch(url, { accept: 'application/json' })).body.toString('utf8'));
 
@@ -608,11 +614,17 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
         image, credit: image ? 'Wikipedia, CC BY-SA 4.0 · image via Wikimedia' : 'Wikipedia, CC BY-SA 4.0',
       };
     },
-    async sky() { return buildSky(await fetchJson(URLS.sky)); },
+    async sky(ctx) {
+      const url = ctx.place === PLACE ? URLS.sky : URLS.sky
+        .replace('latitude=54.597', `latitude=${ctx.place.latitude}`)
+        .replace('longitude=-5.930', `longitude=${ctx.place.longitude}`)
+        .replace('timezone=Europe%2FLondon', `timezone=${encodeURIComponent(ctx.place.timezone)}`);
+      return buildSky(await fetchJson(url), ctx.place);
+    },
     async earth(ctx) {
       const frames = (await fetchJson(URLS.epic)).filter(f => f?.image && f?.date && Number.isFinite(f?.centroid_coordinates?.lon));
       if (!frames.length) throw new Error('EPIC returned no frames');
-      const gap = f => Math.abs(((f.centroid_coordinates.lon - PLACE.lon + 540) % 360) - 180);
+      const gap = f => ctx.place ? Math.abs(((f.centroid_coordinates.lon - ctx.place.longitude + 540) % 360) - 180) : 0;
       const frame = frames.reduce((best, f) => (gap(f) < gap(best) ? f : best));
       const day = frame.date.slice(0, 10);
       if (!isIsoDate(day) || !/^[\w-]+$/.test(frame.image)) throw new Error('unexpected EPIC frame');
@@ -652,10 +664,10 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
   };
   const SOURCE_KEYS = Object.keys(sources);
 
-  function context(date) {
+  function context(date, location) {
     let feed;
     return {
-      date,
+      date, place: location,
       feed: () => (feed ||= fetchJson(URLS.feed(date)).catch(error => {
         log(`almanac feed: ${error.message}; trying the Wikipedia REST mirror`);
         return fetchJson(URLS.feedFallback(date));
@@ -674,7 +686,7 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
     for (const f of files) {
       const day = await readDay(f.slice(0, 10));
       for (const [key, item] of Object.entries(day?.items || {})) {
-        if (!item || item.error || key === 'moon') continue;
+        if (!item || item.error || key === 'moon' || key === 'sky' && !matchesSky(day)) continue;
         if (!item.stale && !lastGood[key]) lastGood[key] = item;
         else if (item.stale && !staleOnly[key]) staleOnly[key] = item;
       }
@@ -692,9 +704,12 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
 
   function present(day, t) {
     const items = {};
+    const location = place();
     for (const key of ITEM_ORDER) {
+      if (!location && ['sky', 'moon'].includes(key)) continue;
+      if (key === 'sky' && !matchesSky(day)) continue;
       if (key === 'moon') {
-        try { items.moon = moonPhase(t); } catch (error) { items.moon = { error: error.message }; }
+        try { items.moon = moonPhase(t, location.timezone); } catch (error) { items.moon = { error: error.message }; }
       } else items[key] = day.items[key] || { error: 'not fetched yet' };
     }
     return { date: day.date, generatedAt: day.generatedAt, items };
@@ -714,20 +729,26 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
 
   async function refresh(force) {
     const t = now();
-    const date = londonDate(t);
+    const location = place();
+    const date = localDate(t);
     if (!lastGood) await loadHistory();
     if (!current || current.date !== date) {
       const saved = await readDay(date);
       current = { date, generatedAt: saved?.generatedAt || null, items: {}, meta: saved?.meta || {} };
-      for (const key of SOURCE_KEYS) if (saved?.items?.[key]) current.items[key] = saved.items[key];
+      for (const key of SOURCE_KEYS) if (saved?.items?.[key] && (key !== 'sky' || matchesSky(saved))) current.items[key] = saved.items[key];
+    }
+    // Forecasts and their stale fallback belong to one place only.
+    if (skyPlace !== placeKey(location)) { delete lastGood.sky; skyPlace = placeKey(location); }
+    if (!location || !matchesSky(current)) {
+      delete current.items.sky; delete current.meta.sky;
     }
     if (!jobsEnabled()) {
       for (const key of SOURCE_KEYS) if (!current.items[key] && lastGood[key]) current.items[key] = { ...lastGood[key], stale: true };
       return current;
     }
-    const keys = SOURCE_KEYS.filter(key => force || isDue(key, current, t));
+    const keys = SOURCE_KEYS.filter(key => (key !== 'sky' || location) && (force || isDue(key, current, t)));
     if (!keys.length) return current;
-    const ctx = context(date);
+    const ctx = context(date, location);
     const results = await Promise.allSettled(keys.map(key => sources[key](ctx)));
     const stamp = now().toISOString();
     keys.forEach((key, i) => {
@@ -735,7 +756,7 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
       if (result.status === 'fulfilled') {
         const item = { ...result.value, fetchedAt: stamp };
         current.items[key] = item;
-        current.meta[key] = { fetchedAt: stamp };
+        current.meta[key] = { fetchedAt: stamp, ...(key === 'sky' && runtime.portableProfile() ? { place: placeKey(location) } : {}) };
         lastGood[key] = item;
         return;
       }
@@ -743,7 +764,7 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
       log(`almanac ${key}: ${message}`);
       const previous = current.items[key] && !current.items[key].error ? current.items[key] : lastGood[key];
       current.items[key] = previous ? { ...previous, stale: true, staleReason: message } : { error: message };
-      current.meta[key] = { ...current.meta[key], failedAt: stamp, error: message };
+      current.meta[key] = { ...current.meta[key], failedAt: stamp, error: message, ...(key === 'sky' && runtime.portableProfile() ? { place: placeKey(location) } : {}) };
     });
     current.generatedAt = stamp;
     try {
@@ -759,7 +780,7 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
     try { day = await inflight; }
     catch (error) {
       log(`almanac: ${error.message}`);
-      day = current || { date: londonDate(now()), generatedAt: null, items: {}, meta: {} };
+      day = current || { date: localDate(now()), generatedAt: null, items: {}, meta: {} };
     }
     return present(day, now());
   }
@@ -771,7 +792,7 @@ function createAlmanac({ dir = path.join(CACHE_DIR, 'almanac'), fetch = fetchRaw
       const u = current?.items?.[IMAGE_KEYS.get(ref.key)]?.image?.url;
       const d = u && new URL(u, 'http://x').searchParams.get('d');
       if (d && isIsoDate(d)) dates.push(d);
-      dates.push(londonDate(now()));
+      dates.push(localDate(now()));
     }
     for (const date of dates) for (const ext of Object.keys(MIME)) {
       const file = path.join(imgDir, `${date}-${ref.key}.${ext}`);

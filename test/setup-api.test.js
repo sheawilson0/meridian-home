@@ -300,3 +300,54 @@ test('GitHub and usage history read the live gate after their modules have loade
   runner.start(); assert.equal(scheduled, 2);
   runtime.configure({ portable: false, connectors: {} });
 });
+
+test('almanac setup validates text coordinates and retains configured place on partial updates', () => {
+  const settings = { name: 'Tokyo', latitude: '35.6762', longitude: '139.6503', timezone: 'Asia/Tokyo' };
+  const validate = (values, enabled = true, config = {}) => schema.validate('almanac', { enabled, settings: values }, config);
+  const expected = { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503, timezone: 'Asia/Tokyo' };
+  assert.deepEqual(validate(settings), { enabled: true, patch: expected });
+  for (const key of Object.keys(settings)) {
+    const missing = { ...settings }; delete missing[key];
+    assert.throws(() => validate(missing), error => error.statusCode === 400);
+  }
+  for (const [key, value] of [['latitude', '91'], ['latitude', '-91'], ['latitude', 'NaN'], ['latitude', 'Infinity'], ['latitude', ''], ['latitude', '0x10'], ['latitude', 35.6], ['longitude', '181'], ['longitude', '-181'], ['timezone', 'Invalid/Zone'], ['timezone', '+01:00']]) {
+    assert.throws(() => validate({ ...settings, [key]: value }), error => error.statusCode === 400);
+  }
+  assert.deepEqual(validate({ latitude: '0', longitude: '0' }, true, { place: expected }).patch, { latitude: 0, longitude: 0 });
+  assert.deepEqual(validate({}, true, { place: expected }), { enabled: true, patch: {} });
+  assert.deepEqual(validate({}, false), { enabled: false, patch: {} });
+  assert.throws(() => validate({ name: 'Incomplete' }, false), error => error.statusCode === 400);
+});
+
+test('portable setup saves place under its own config key and publishes dashboard and phone labels', async t => {
+  const root = await fixture(t);
+  let server = await boot(t, root);
+  const initial = await server.json('/api/setup');
+  assert.deepEqual(initial.connectors.almanac.needs, schema.SCHEMA.almanac.needs);
+  assert.equal((await server.json('/api/state')).location.name, '');
+  const file = path.join(root, 'config.json'), before = await fs.readFile(file, 'utf8');
+  await server.json('/api/setup/connectors/almanac', 'PUT', { enabled: true, settings: {} }, 400);
+  await server.json('/api/setup/connectors/almanac', 'PUT', { enabled: false, settings: { name: 'Incomplete' } }, 400);
+  const settings = { name: 'Tokyo', latitude: '35.6762', longitude: '139.6503', timezone: 'Asia/Tokyo' };
+  for (const values of [{ ...settings, latitude: '91' }, { ...settings, timezone: 'Invalid/Zone' }]) {
+    await server.json('/api/setup/connectors/almanac', 'PUT', { enabled: true, settings: values }, 400);
+  }
+  assert.equal(await fs.readFile(file, 'utf8'), before);
+  const status = await server.json('/api/setup/connectors/almanac', 'PUT', { enabled: false, settings });
+  assert.equal(status.enabled, false);
+  assert.equal(Object.hasOwn(status, 'settings'), false);
+  await server.json('/api/refresh', 'POST', {});
+  for (const route of ['/api/state', '/api/state?view=phone']) assert.equal((await server.json(route)).location.name, 'Tokyo');
+  const saved = JSON.parse(await fs.readFile(file, 'utf8'));
+  assert.deepEqual(saved.place, { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503, timezone: 'Asia/Tokyo' });
+  assert.equal(Object.hasOwn(saved, 'almanac'), false);
+  assert.equal(await fs.readFile(file + '.bak', 'utf8'), await fs.readFile(file, 'utf8'));
+  assert.equal((await fs.stat(file)).mode & 0o777, 0o600);
+  await server.json('/api/setup/connectors/almanac', 'PUT', { enabled: false, settings: { name: 'Tokyo centre', latitude: '0', longitude: '0' } });
+  await server.json('/api/refresh', 'POST', {});
+  assert.equal((await server.json('/api/state')).location.name, 'Tokyo centre');
+  await server.stop();
+  server = await boot(t, root);
+  assert.equal((await server.json('/api/state')).location.name, 'Tokyo centre');
+  assert.deepEqual(JSON.parse(await fs.readFile(file, 'utf8')).place, { name: 'Tokyo centre', latitude: 0, longitude: 0, timezone: 'Asia/Tokyo' });
+});
