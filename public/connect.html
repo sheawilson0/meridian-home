@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en" data-surface="ink">
+<head>
+<script src="/lab-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0d">
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<title>Meridian · Connect</title>
+<script>
+// The command centre's saved look, applied before first paint (same as command.html, minus the sidebar).
+try{const p=JSON.parse(localStorage.getItem('meridian.cc.prefs')||(window.__meridianStash||{})['meridian.cc.prefs']||'{}');const r=document.documentElement;
+  for(const [k,v] of Object.entries(p.look||{}))if(k!=='grain'&&k!=='tintStrength')r.dataset[k]=(k==='radius'&&v==='round')?'squircle':v;
+  if(p.grain)r.style.setProperty('--grain',String(p.grain/100));
+  if(p.accent)r.style.setProperty('--accent',p.accent);}catch{}
+</script>
+<link rel="stylesheet" href="/command.css">
+<style>
+  .app.solo{grid-template-columns:1fr}
+  .app.solo .page{margin:var(--inset)}
+  .cx{max-width:1040px}
+  .cx .back{margin:-10px 0 18px -8px}
+  .cx .sec-h:first-of-type{margin-top:8px}
+  .cx .row .r{max-width:46%;overflow:hidden;text-overflow:ellipsis}
+  .cx .row .t .tag{margin-left:8px;vertical-align:1px}
+  .cx .row.err .s{color:var(--bad)}
+  .cx .help{font-size:12.5px;color:var(--dim);margin-top:8px;line-height:1.55}
+  .cx .help b{color:var(--body);font-weight:500}
+  .swatch-in{appearance:none;-webkit-appearance:none;width:18px;height:18px;padding:0;border:0;border-radius:6px;background:none;cursor:pointer;flex:none}
+  .swatch-in::-webkit-color-swatch-wrapper{padding:0}
+  .swatch-in::-webkit-color-swatch{border:0;border-radius:6px}
+  .swatch-in::-moz-color-swatch{border:0;border-radius:6px}
+  .cx .edit{cursor:text}
+  .cx .edit.editing{outline:none;box-shadow:0 0 0 2px color-mix(in oklab,var(--accent) 55%,transparent);border-radius:6px;padding:0 4px;margin:0 -4px}
+  .addrow{display:flex;gap:8px;align-items:center;margin-top:14px}
+  .addrow input[name=url]{flex:1}
+  .addrow input[name=label]{width:150px;flex:none}
+  .term{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:13px;color:var(--dim)}
+  .term input{width:auto}
+  .term input[type=text]{flex:1;min-width:200px}
+  .cls{display:grid;grid-template-columns:minmax(160px,2.2fr) 92px 92px 92px minmax(110px,1.2fr) 30px;gap:6px;align-items:center;margin-bottom:6px}
+  .cls.head{font-size:12px;color:var(--dim2);margin-bottom:4px}
+  .cls input,.cls select{padding:7px 9px;font-size:13.5px}
+  .cls input[type=time]::-webkit-calendar-picker-indicator{display:none}
+  .cls .guess{position:relative}
+  .cls .guess input{color:var(--dim)}
+  .cls .guess::after{content:'guess';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10.5px;color:var(--dim2);pointer-events:none}
+  .clsfoot{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .clsfoot .grow{flex:1}
+  .inline-paste{display:flex;gap:6px;align-items:center}
+  .inline-paste input{width:min(320px,40vw);padding:6px 10px;font-size:13px}
+  .rows .row .acts.on{opacity:1}
+  @media (max-width:760px){
+    .addrow{flex-wrap:wrap} .addrow input[name=url]{flex-basis:100%} .addrow input[name=label]{flex:1;width:auto}
+    .cx .row .s{white-space:normal}
+    .term input[type=date]{flex:1;min-width:0}
+    .cls input[data-k=where]{grid-column:1/3!important} .cls [data-k=remove]{justify-self:end}
+    .cls{grid-template-columns:repeat(3,minmax(0,1fr))} .cls.head{display:none}
+    .cls input,.cls select{min-width:0}
+    #feeds .row .r{display:none}
+    .cls{padding-bottom:10px;margin-bottom:10px}
+    .cls input[data-k=title]{grid-column:1/-1}
+    .cx .row{flex-wrap:wrap} .cx .row .r{max-width:100%;width:100%;padding-left:19px}
+    .inline-paste{width:100%} .inline-paste input{flex:1;width:auto}
+  }
+  /* Touch: 16px fields (iOS zooms the page on focus below that), 36px swatch hit area, page clear of the notch and home bar. */
+  @media (pointer:coarse){
+    .cx input,.cx select,.cx textarea{font-size:16px}
+    .swatch-in{box-sizing:content-box;padding:9px;margin:-9px} /* no ::before on a colour input: padding gives the 36px hit area, the negative margin keeps the layout */
+  }
+  @media (pointer:coarse) and (max-width:760px){ /* 16px dates no longer fit side by side: stack Term / to */
+    .term{display:grid;grid-template-columns:auto minmax(0,1fr)} .term input{width:100%} .term input[type=text]{grid-column:1/-1;min-width:0}
+  }
+  @media (pointer:coarse),(max-width:760px){
+    .cx{padding-left:max(clamp(18px,3.4vw,44px),env(safe-area-inset-left));padding-right:max(clamp(18px,3.4vw,44px),env(safe-area-inset-right));padding-bottom:max(80px,env(safe-area-inset-bottom))}
+  }
+  @media (max-width:760px){
+    .cx{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));padding-bottom:max(70px,env(safe-area-inset-bottom))}
+  }
+</style>
+</head>
+<body>
+<div class="app solo">
+  <main class="page">
+    <section class="view on cx">
+      <a class="btn sm ghost back" href="/dashboard" id="back"><svg class="ico" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>Dashboard</a>
+      <div class="vhead"><div><h1>Connect<span class="stop">.</span></h1><p>What Meridian reads. Most of it finds itself.</p></div>
+        <div class="vtools"><button class="btn ghost" id="recheck"><svg class="ico" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.6 4.5L20 16"/><path d="M20 20v-4h-4"/></svg><span>Check again</span></button></div></div>
+
+      <div class="sec-h"><h3>Found on this Mac</h3><span class="sub">Picked up on its own</span></div>
+      <div class="card"><div class="rows" id="found"><div class="empty">Looking…</div></div></div>
+
+      <div class="sec-h"><h3>Calendars</h3><span class="sub">Up next reads these</span></div>
+      <div class="grid">
+        <section class="card c12">
+          <div class="rows" id="feeds"><div class="empty">Loading…</div></div>
+          <form class="addrow" id="cal-add" autocomplete="off">
+            <input name="url" placeholder="Paste an ICS link" aria-label="Calendar link" required>
+            <input name="label" placeholder="Name" aria-label="Calendar name" maxlength="40">
+            <button class="btn primary" type="submit"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+          </form>
+          <p class="help"><b>Google</b> Settings → your calendar → Integrate calendar → Secret address in iCal format.<br><b>Outlook</b> Settings → Calendar → Shared calendars → Publish a calendar → ICS.</p>
+        </section>
+        <section class="card c12" id="classes-card">
+          <div class="ch"><input type="color" class="swatch-in" id="cls-color" aria-label="Classes colour"><h2>Classes</h2><span class="sub">Weekly, inside the term. No reminders.</span>
+            <span class="end"><button class="ibtn" id="cls-hide" type="button"></button></span></div>
+          <div class="term"><span>Term</span><input type="date" id="term-from" aria-label="Term starts"><span>to</span><input type="date" id="term-to" aria-label="Term ends">
+            <input type="text" id="term-skip" placeholder="No classes on (dates, comma separated)" aria-label="Dates with no classes"></div>
+          <div class="cls head"><span>Class</span><span>Day</span><span>Starts</span><span>Ends</span><span>Where</span><span></span></div>
+          <div id="cls-rows"></div>
+          <div class="clsfoot"><button class="btn sm ghost" type="button" id="cls-add"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a class</button><span class="grow"></span><span class="dim" id="cls-note" style="font-size:12.5px"></span><button class="btn primary" type="button" id="cls-save" disabled>Save</button></div>
+        </section>
+      </div>
+
+      <div class="sec-h"><h3>Not set up yet</h3><span class="sub">Paste a link, or hand it to an agent</span></div>
+      <div class="card"><div class="rows" id="missing"><div class="empty">Looking…</div></div></div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"><span id="toast-t"></span></div>
+
+<script>
+'use strict';
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const token=new URLSearchParams(location.search).get('t');
+const api=(p)=>token?p+(p.includes('?')?'&':'?')+'t='+encodeURIComponent(token):p;
+if(token)$('back').href=api('/dashboard');
+async function send(p,body,method='POST'){
+  const r=await fetch(api(p),{method,headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||j.ok===false)throw new Error(j.error||('Request failed ('+r.status+')'));
+  return j;
+}
+const IC={
+  check:'<path d="m5 12.5 4.2 4.2L19 7"/>', trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+  eyeoff:'<path d="M3 3l18 18M10.6 5.6c.5-.1.9-.1 1.4-.1 6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.5 6.6A16 16 0 0 0 2.5 12S6 18.5 12 18.5c1.5 0 2.9-.4 4.1-1"/>',
+  agent:'<rect x="4" y="7.5" width="16" height="11.5" rx="3"/><path d="M12 3.5v4M9 13h.01M15 13h.01"/>', close:'<path d="M18 6 6 18M6 6l12 12"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+};
+const icon=(n)=>`<svg class="ico" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
+let tt; function toast(msg){ $('toast-t').textContent=msg; $('toast').classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>$('toast').classList.remove('on'),3600); }
+const DAYS=[['mon','Monday'],['tue','Tuesday'],['wed','Wednesday'],['thu','Thursday'],['fri','Friday'],['sat','Saturday'],['sun','Sunday']];
+function ago(ts){ if(!ts)return ''; const s=Math.max(0,(Date.now()-ts)/1000); if(s<90)return 'just now'; if(s<3600)return Math.round(s/60)+' min ago'; if(s<129600)return Math.round(s/3600)+' h ago'; return Math.round(s/86400)+' days ago'; }
+
+let conn=null, cals=null, draft=null, dirty=false;
+async function load(force){
+  try{
+    const [a,b]=await Promise.all([fetch(api('/api/connect'+(force?'?refresh=1':''))).then(r=>r.json()),fetch(api('/api/calendars')).then(r=>r.json())]);
+    conn=a; cals=b; if(!dirty)draft=JSON.parse(JSON.stringify(b.classes||{term:{},items:[]}));
+    render();
+  }catch(err){ $('found').innerHTML=`<div class="empty">Could not reach Meridian. ${esc(err.message)}</div>`; }
+}
+
+function render(){ renderFound(); renderFeeds(); renderClasses(); renderMissing(); }
+
+function renderFound(){
+  const list=(conn?.sources||[]).filter(s=>s.group!=='calendar'&&s.status==='connected');
+  $('found').innerHTML=list.map(s=>`<div class="row"><i class="dot ok"></i><div class="main"><div class="t">${esc(s.name)}</div><div class="s">${esc(s.what)}</div></div><span class="r">${esc(s.detail)}</span></div>`).join('')||'<div class="empty">Nothing found yet.</div>';
+}
+
+function renderFeeds(){
+  const feeds=cals?.feeds||[];
+  $('feeds').innerHTML=feeds.map(f=>{
+    const err=f.ok===false&&!f.hidden;
+    const bits=f.hidden?['Hidden']:err?[f.error||'Could not fetch it']:f.ok?[`${f.events??0} this week`,f.at?'checked '+ago(f.at):'']:['Not checked yet'];
+    return `<div class="row${err?' err':''}" data-feed="${esc(f.id)}"><input type="color" class="swatch-in" value="${esc(f.color||'#888888')}" data-act="color" aria-label="Colour for ${esc(f.label)}">
+      <div class="main"><div class="t"><span class="edit" data-act="label" title="Click to rename">${esc(f.label)}</span>${f.source==='config'?'<span class="tag">set in config</span>':''}</div><div class="s">${esc([f.host,...bits].filter(Boolean).join(' · '))}</div></div>
+      <span class="r"><i class="dot ${f.hidden?'':err?'down':f.ok?'ok':''}"></i></span>
+      <span class="acts"><button class="ibtn" type="button" data-act="hide" aria-label="${f.hidden?'Show':'Hide'}" title="${f.hidden?'Show it again':'Hide it'}">${icon(f.hidden?'eye':'eyeoff')}</button>${f.source==='added'?`<button class="ibtn" type="button" data-act="remove" aria-label="Remove" title="Remove">${icon('trash')}</button>`:''}</span></div>`;
+  }).join('')||'<div class="empty">No calendars yet. Paste one below.</div>';
+}
+
+function renderClasses(){
+  const c=draft||{term:{},items:[]};
+  $('cls-color').value=c.color||'#b7a1ff';
+  $('cls-hide').innerHTML=icon(c.hidden?'eye':'eyeoff'); $('cls-hide').title=c.hidden?'Show classes in Up next':'Hide classes from Up next';
+  $('term-from').value=c.term?.from||''; $('term-to').value=c.term?.to||''; $('term-skip').value=(c.skip||[]).join(', ');
+  $('cls-rows').innerHTML=(c.items||[]).map((it,i)=>`<div class="cls" data-i="${i}">
+      <input data-k="title" value="${esc(it.title)}" placeholder="Class" maxlength="120" aria-label="Class name">
+      <select data-k="day" aria-label="Day">${DAYS.map(([v,l])=>`<option value="${v}"${v===it.day?' selected':''}>${l.slice(0,3)}</option>`).join('')}</select>
+      <span class="${it.estimated?'guess':''}"><input data-k="start" type="time" value="${esc(it.start)}" aria-label="Starts"></span>
+      <span class="${it.estimated?'guess':''}"><input data-k="end" type="time" value="${esc(it.end)}" aria-label="Ends"></span>
+      <input data-k="where" value="${esc(it.where||'')}" placeholder="Where" maxlength="120" aria-label="Where">
+      <button class="ibtn" type="button" data-k="remove" aria-label="Remove ${esc(it.title)}">${icon('close')}</button></div>`).join('')||'<div class="empty">No classes yet.</div>';
+  const n=c.events??null;
+  $('cls-note').textContent=dirty?'Not saved':(c.items||[]).some(i=>i.estimated)?'“guess” times came from the lecture recordings':n!=null?`${n} in the next week`:'';
+  $('cls-save').disabled=!dirty;
+}
+
+function renderMissing(){
+  const list=(conn?.sources||[]).filter(s=>s.status!=='connected'&&!String(s.id).startsWith('calendar:')&&s.id!=='classes');
+  $('missing').innerHTML=list.map(s=>`<div class="row${s.status==='error'?' err':''}" data-src="${esc(s.id)}"><i class="dot ${s.status==='error'?'down':''}"></i>
+      <div class="main"><div class="t">${esc(s.name)}</div><div class="s">${esc(s.status==='error'?s.detail:s.what)}</div>${s.help?`<div class="help" style="margin-top:4px">${esc(s.help)}</div>`:''}</div>
+      <span class="acts on">${s.action==='paste'?`<form class="inline-paste" data-label="${esc(s.label||'')}"><input name="url" placeholder="Paste its ICS link" aria-label="Calendar link" required><button class="btn sm" type="submit">Add</button></form>`:s.action==='agent'?`<button class="btn sm" type="button" data-ask="${esc(s.id)}">${icon('agent')}Ask an agent to set this up</button>`:''}</span></div>`).join('')||'<div class="empty">Nothing missing.</div>';
+}
+
+/* ---------- calendars ---------- */
+async function addCalendar(url,label,btn){
+  if(btn){ btn.disabled=true; btn.dataset.was=btn.innerHTML; btn.textContent='Checking…'; }
+  try{ const j=await send('/api/calendars',{url,label}); toast(`${j.feed.label} is connected: ${j.feed.events??0} events this week`); await load(true); return true; }
+  catch(err){ toast(err.message); return false; }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML=btn.dataset.was; } }
+}
+$('cal-add').addEventListener('submit',async e=>{ e.preventDefault(); const f=e.target; if(await addCalendar(f.url.value.trim(),f.label.value.trim(),f.querySelector('button')))f.reset(); });
+$('missing').addEventListener('submit',async e=>{ const f=e.target.closest('.inline-paste'); if(!f)return; e.preventDefault(); await addCalendar(f.url.value.trim(),f.dataset.label||'',f.querySelector('button')); });
+
+async function patchFeed(id,body,msg){ try{ await send('/api/calendars/'+encodeURIComponent(id),body,'PATCH'); if(msg)toast(msg); }catch(err){ toast(err.message); } load(true); }
+$('feeds').addEventListener('change',e=>{ const row=e.target.closest('[data-feed]'); if(row&&e.target.dataset.act==='color')patchFeed(row.dataset.feed,{color:e.target.value}); });
+$('feeds').addEventListener('click',async e=>{
+  const row=e.target.closest('[data-feed]'); if(!row)return; const f=(cals?.feeds||[]).find(x=>x.id===row.dataset.feed); if(!f)return;
+  const act=e.target.closest('[data-act]')?.dataset.act;
+  if(act==='hide')return patchFeed(f.id,{hidden:!f.hidden},f.hidden?`${f.label} is back in Up next`:`${f.label} is hidden`);
+  if(act==='remove'){ if(!confirm(`Remove ${f.label}? Its events leave Up next.`))return; try{ await send('/api/calendars/'+encodeURIComponent(f.id),undefined,'DELETE'); toast(`Removed ${f.label}`); }catch(err){ toast(err.message); } return load(true); }
+  if(act==='label'){ const el=e.target.closest('.edit'); if(el.isContentEditable)return; const before=el.textContent; el.contentEditable='plaintext-only'; el.classList.add('editing'); el.focus(); getSelection().selectAllChildren(el);
+    let done=false; const finish=(keep)=>{ if(done)return; done=true; el.contentEditable='false'; el.classList.remove('editing'); const v=el.textContent.replace(/\s+/g,' ').trim(); if(!keep||!v||v===before){ el.textContent=before; return; } patchFeed(f.id,{label:v},'Renamed'); };
+    el.addEventListener('keydown',k=>{ if(k.key==='Enter'){ k.preventDefault(); finish(true); } if(k.key==='Escape'){ k.preventDefault(); finish(false); } });
+    el.addEventListener('blur',()=>finish(true),{once:true}); }
+});
+
+/* ---------- classes ---------- */
+function touch(){ dirty=true; $('cls-save').disabled=false; $('cls-note').textContent='Not saved'; }
+$('cls-rows').addEventListener('input',e=>{ const row=e.target.closest('.cls'); const k=e.target.dataset.k; if(!row||!k||k==='remove')return; const it=draft.items[Number(row.dataset.i)];
+  it[k]=e.target.value; if(['day','start','end'].includes(k)&&it.estimated){ it.estimated=false; row.querySelectorAll('.guess').forEach(x=>x.classList.remove('guess')); } touch(); });
+$('cls-rows').addEventListener('click',e=>{ const b=e.target.closest('[data-k=remove]'); if(!b)return; draft.items.splice(Number(b.closest('.cls').dataset.i),1); touch(); renderClasses(); });
+$('cls-add').addEventListener('click',()=>{ draft.items=draft.items||[]; draft.items.push({title:'',day:'mon',start:'10:00',end:'11:00',where:''}); touch(); renderClasses(); $('cls-rows').querySelector('.cls:last-child input[data-k=title]')?.focus(); });
+['term-from','term-to'].forEach(id=>$(id).addEventListener('input',e=>{ draft.term=draft.term||{}; draft.term[id==='term-from'?'from':'to']=e.target.value; touch(); }));
+$('term-skip').addEventListener('input',e=>{ draft.skip=e.target.value.split(/[,\s]+/).map(s=>s.trim()).filter(Boolean); touch(); });
+$('cls-save').addEventListener('click',async()=>{
+  const b=$('cls-save'); b.disabled=true;
+  try{ const j=await send('/api/calendars/classes',{term:draft.term,skip:draft.skip||[],items:draft.items},'PUT'); dirty=false; draft=JSON.parse(JSON.stringify(j.classes)); toast(`Saved. ${j.classes.events} in Up next this week.`); renderClasses(); load(true); }
+  catch(err){ toast(err.message); b.disabled=false; }
+});
+$('cls-color').addEventListener('change',async e=>{ try{ const j=await send('/api/calendars/classes',{color:e.target.value},'PATCH'); if(!dirty)draft=j.classes; else draft.color=j.classes.color; }catch(err){ toast(err.message); } });
+$('cls-hide').addEventListener('click',async()=>{ const hidden=!draft.hidden; try{ const j=await send('/api/calendars/classes',{hidden},'PATCH'); draft.hidden=j.classes.hidden; toast(hidden?'Classes are hidden from Up next':'Classes are back in Up next'); renderClasses(); }catch(err){ toast(err.message); } });
+
+/* ---------- agents ---------- */
+$('missing').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-ask]'); if(!b)return; const s=(conn?.sources||[]).find(x=>x.id===b.dataset.ask); if(!s||!s.prompt)return;
+  b.disabled=true; b.textContent='Asking…';
+  try{ await send('/api/delegate',{title:'Set up '+s.name,prompt:s.prompt}); b.textContent='An agent is on it'; toast('An agent is on it. Follow it in Dogfood.'); }
+  catch(err){ toast(err.message); b.disabled=false; b.innerHTML=icon('agent')+'Ask an agent to set this up'; }
+});
+
+$('recheck').addEventListener('click',async()=>{ const b=$('recheck'); b.disabled=true; b.querySelector('span').textContent='Checking…'; await load(true); b.disabled=false; b.querySelector('span').textContent='Check again'; });
+addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+load();
+</script>
+</body>
+</html>

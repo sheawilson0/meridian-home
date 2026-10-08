@@ -1,0 +1,149 @@
+{
+  "version": 2,
+  "plans": [
+    {
+      "id": "chatgpt-business",
+      "provider": "openai",
+      "name": "chatgpt-business",
+      "account": "Example",
+      "payer": "work",
+      "status": "active",
+      "periods": [
+        {
+          "from": "2026-01-01",
+          "to": null,
+          "amount": 18,
+          "currency": "GBP",
+          "per": "month"
+        }
+      ]
+    },
+    {
+      "id": "chatgpt-plus",
+      "provider": "openai",
+      "name": "chatgpt-plus",
+      "account": "Example",
+      "payer": "you",
+      "status": "active",
+      "periods": [
+        {
+          "from": "2026-01-01",
+          "to": null,
+          "amount": 18,
+          "currency": "GBP",
+          "per": "month"
+        }
+      ]
+    },
+    {
+      "id": "claude-pro-gmail",
+      "provider": "claude",
+      "name": "claude-pro-gmail",
+      "account": "Example",
+      "payer": "you",
+      "status": "active",
+      "periods": [
+        {
+          "from": "2026-01-01",
+          "to": null,
+          "amount": 18,
+          "currency": "GBP",
+          "per": "month"
+        }
+      ]
+    },
+    {
+      "id": "claude-pro-ulster",
+      "provider": "claude",
+      "name": "claude-pro-ulster",
+      "account": "Example",
+      "payer": "you",
+      "status": "active",
+      "periods": [
+        {
+          "from": "2026-01-01",
+          "to": null,
+          "amount": 18,
+          "currency": "GBP",
+          "per": "month"
+        }
+      ]
+    },
+    {
+      "id": "claude-team",
+      "provider": "claude",
+      "name": "claude-team",
+      "account": "Example",
+      "payer": "work",
+      "status": "active",
+      "periods": [
+        {
+          "from": "2026-01-01",
+          "to": null,
+          "amount": 18,
+          "currency": "GBP",
+          "per": "month"
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "provider": "openai",
+      "planTypes": [
+        "team",
+        "self_serve_business_prolite"
+      ],
+      "plan": "chatgpt-business"
+    },
+    {
+      "provider": "openai",
+      "planTypes": [
+        "plus"
+      ],
+      "plan": "chatgpt-plus"
+    },
+    {
+      "provider": "openai",
+      "planTypes": [
+        "free"
+      ],
+      "plan": null
+    },
+    {
+      "provider": "claude",
+      "profiles": [
+        "Claude Desktop"
+      ],
+      "plan": "claude-pro-gmail"
+    },
+    {
+      "provider": "claude",
+      "profiles": [
+        ".claude-work",
+        ".claude_work_home"
+      ],
+      "plan": "claude-team"
+    },
+    {
+      "provider": "claude",
+      "to": "2026-08-24",
+      "plan": "claude-pro-gmail"
+    },
+    {
+      "provider": "claude",
+      "from": "2026-08-25",
+      "plan": "claude-team"
+    },
+    {
+      "provider": "openai",
+      "to": "2026-08-06",
+      "plan": "chatgpt-plus"
+    },
+    {
+      "provider": "openai",
+      "from": "2026-08-07",
+      "plan": "chatgpt-business"
+    }
+  ]
+}

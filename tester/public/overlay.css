@@ -1,0 +1,61 @@
+/* The test card and its sheets, in the page's own tokens (command.css). */
+#demo-tag{display:none!important}
+.tt{position:fixed;right:16px;bottom:16px;z-index:58;width:min(330px,calc(100vw - 32px));background:var(--pop,#1a1a1c);color:var(--body,#c3c3c8);border-radius:16px;box-shadow:var(--shadow,0 24px 70px rgba(0,0,0,.65));font:14px/1.5 var(--f-body,system-ui);outline:1px solid rgba(255,255,255,.07);overflow:hidden;transition:transform .3s var(--ease,ease),bottom .3s var(--ease,ease)}
+html[data-strip-on] .tt{bottom:64px}
+/* With the sidebar docked on the left, the card sits in its empty lower half, clear of the page. */
+html[data-sidemode="docked"]:not([data-side="right"]) .tt{left:calc(var(--inset,8px) + 6px);right:auto;bottom:58px;width:calc(var(--side-w,235px) - 12px)}
+html[data-sidemode="docked"]:not([data-side="right"]) .tt-scale{gap:3px}
+html[data-sidemode="docked"]:not([data-side="right"]) .tt-scale button{height:32px;font-size:13px}
+.tt-h{display:flex;align-items:center;gap:8px;padding:9px 10px 9px 14px}
+.tt-fold{flex:1;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--dim,#8e8e94);font:500 12px var(--f-body,system-ui);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:2px 0;text-align:left}
+.tt-fold:hover{color:var(--ink,#f4f4f5)}
+.tt-chev{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+.tt.folded .tt-chev{transform:rotate(-135deg) translate(-1px,-1px)}
+.tt-rec{display:flex;align-items:center;gap:6px;background:var(--well,#232325);border:0;border-radius:20px;padding:3px 9px;color:var(--dim,#8e8e94);font:12px var(--f-body,system-ui);cursor:pointer}
+.tt-rec i{width:7px;height:7px;border-radius:50%;background:#ff5247;animation:ttpulse 2s ease-in-out infinite}
+.tt-rec:hover{color:var(--ink,#f4f4f5)}
+@keyframes ttpulse{50%{opacity:.35}}
+.tt-b{padding:2px 14px 14px}
+.tt.folded .tt-b{display:none}
+.tt-t{color:var(--ink,#f4f4f5);font-weight:500;font-size:16px;line-height:1.35;margin:0 0 4px}
+.tt-x{color:var(--body,#c3c3c8);margin:0 0 10px}
+.tt-q{color:var(--ink,#f4f4f5);margin:0 0 10px}
+.tt-a{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.tt-a.end{justify-content:flex-end}
+.tt-a.end .tt-x{margin:0 auto 0 0}
+.tt-btn{font:500 13.5px var(--f-body,system-ui);border:0;border-radius:9px;padding:7px 13px;background:var(--well,#232325);color:var(--ink,#f4f4f5);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.tt-btn:hover{background:var(--well-hi,#2f2f32)}
+.tt-btn.primary{background:var(--accent,#ff5247);color:var(--accent-ink,#2b0503)}
+.tt-btn.primary:hover{filter:brightness(1.08)}
+.tt-btn.wide{width:100%;margin:2px 0 0}
+.tt-btn:disabled{opacity:.5;cursor:default}
+.tt-link{background:none;border:0;color:var(--dim,#8e8e94);font:13px var(--f-body,system-ui);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 2px}
+.tt-link:hover{color:var(--ink,#f4f4f5)}
+.tt-in{width:100%;background:var(--well,#232325);border:0;border-radius:10px;color:var(--ink,#f4f4f5);font:14px/1.45 var(--f-body,system-ui);padding:9px 11px;resize:vertical;outline:none;margin:2px 0 4px}
+.tt-in:focus{box-shadow:0 0 0 2px var(--well-hi,#2f2f32)}
+.tt-say{display:grid;gap:6px;margin-top:10px}
+.tt-say[hidden]{display:none}
+.tt-say .tt-btn{justify-self:end}
+.tt-scale{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.tt-scale button{height:36px;border:0;border-radius:9px;background:var(--well,#232325);color:var(--ink,#f4f4f5);font:500 14px var(--f-body,system-ui);cursor:pointer;display:grid;place-items:center;text-align:center;padding:0;min-width:0}
+.tt-scale button:hover{background:var(--well-hi,#2f2f32)}
+.tt-scale button.on{background:var(--accent,#ff5247);color:var(--accent-ink,#2b0503)}
+.tt-ends{display:flex;justify-content:space-between;color:var(--dim,#8e8e94);font-size:12px;margin-top:5px}
+/* The stand-in for a phone notification. */
+.tt-note{position:fixed;top:16px;right:16px;z-index:96;display:flex;align-items:center;gap:10px;max-width:min(440px,calc(100vw - 32px));background:var(--pop,#1a1a1c);color:var(--body,#c3c3c8);border-radius:14px;padding:11px 12px 11px 14px;box-shadow:var(--shadow,0 24px 70px rgba(0,0,0,.65));outline:1px solid rgba(255,255,255,.08);font:14px/1.4 var(--f-body,system-ui);transform:translateY(-14px);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s var(--ease,ease)}
+.tt-note.on{opacity:1;transform:none;pointer-events:auto}
+.tt-note i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--good,#6cc39a)}
+.tt-note b{color:var(--ink,#f4f4f5);font-weight:500}
+.tt-note button{flex:none;font:500 13px var(--f-body,system-ui);border:0;border-radius:8px;padding:6px 11px;background:var(--well-hi,#2f2f32);color:var(--ink,#f4f4f5);cursor:pointer}
+/* The closing questions. */
+.tt-final{position:fixed;inset:0;z-index:97;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:20px;opacity:0;transition:opacity .25s}
+.tt-final.on{opacity:1}
+.tt-sheet{width:min(560px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--pop,#1a1a1c);border-radius:20px;padding:24px 24px 18px;box-shadow:var(--shadow,0 24px 70px rgba(0,0,0,.65));font:14.5px/1.5 var(--f-body,system-ui);color:var(--body,#c3c3c8)}
+.tt-sheet h2{font:italic 500 28px/1.15 var(--f-display,Georgia,serif);color:var(--ink,#f4f4f5);margin:0 0 6px}
+.tt-fq{border:0;margin:18px 0 0;padding:0}
+.tt-fq legend{color:var(--ink,#f4f4f5);margin-bottom:8px;padding:0}
+.tt-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.tt-pills button{border:0;border-radius:20px;padding:6px 13px;background:var(--well,#232325);color:var(--body,#c3c3c8);font:13.5px var(--f-body,system-ui);cursor:pointer;text-align:center;width:auto;height:auto}
+.tt-pills button:hover{background:var(--well-hi,#2f2f32)}
+.tt-pills button.on{background:var(--accent,#ff5247);color:var(--accent-ink,#2b0503)}
+@media (max-width:760px){ .tt,html[data-sidemode] .tt{right:10px;left:10px;width:auto;bottom:10px} html[data-strip-on] .tt{bottom:58px} }

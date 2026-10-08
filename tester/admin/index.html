@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Meridian tests</title>
+<link rel="stylesheet" href="/console.css">
+</head>
+<body>
+<header class="top">
+  <b class="logo">Meridian tests</b>
+  <div class="pub" id="pub"><i class="dot"></i><span id="pub-t">Checking the public link…</span><button type="button" class="btn sm" id="pub-btn" hidden></button></div>
+  <button type="button" class="btn sm ghost" id="set-btn">Settings</button>
+</header>
+<main class="body">
+  <aside class="people">
+    <div class="ph"><h2>People</h2><button type="button" class="btn sm" id="new-btn">New invite</button></div>
+    <form class="newform" id="newform" hidden>
+      <input id="nf-name" placeholder="Their first name" maxlength="40" required>
+      <div class="seg"><label><input type="radio" name="nf-mode" value="moderated" checked> On a call with you</label><label><input type="radio" name="nf-mode" value="self"> On their own</label></div>
+      <div class="seg"><label><input type="radio" name="nf-world" value="sam" checked> Sam’s day</label><label><input type="radio" name="nf-world" value="blank"> Blank</label></div>
+      <div class="row"><button type="submit" class="btn">Create</button><button type="button" class="btn ghost" id="nf-cancel">Cancel</button></div>
+    </form>
+    <ol class="plist" id="plist"></ol>
+    <p class="empty" id="pempty" hidden>No invites yet. Make one for each person.</p>
+  </aside>
+  <section class="main" id="main"><p class="empty big">Pick someone on the left, or make a new invite.</p></section>
+  <aside class="feed"><div class="ph"><h2>Live</h2><span class="sub" id="feed-sub"></span></div><ol id="feed"></ol></aside>
+</main>
+<dialog id="settings">
+  <form method="dialog" class="dlg">
+    <h3>Settings</h3>
+    <label class="fld"><span>PostHog project key (optional)</span><input id="s-ph" placeholder="phc_…" autocomplete="off"><small>Adds PostHog’s recording and heatmaps alongside the built-in recorder, for anyone who said yes to recording. Leave empty to use only the built-in one.</small></label>
+    <div class="seg"><label><input type="radio" name="s-host" value="https://eu.i.posthog.com" checked> EU</label><label><input type="radio" name="s-host" value="https://us.i.posthog.com"> US</label></div>
+    <label class="check"><input type="checkbox" id="s-ai"> Use Claude to sort what testers paste in, and to write reports for their own to-dos</label>
+    <div class="row end"><button value="cancel" class="btn ghost">Cancel</button><button type="button" class="btn" id="s-save">Save</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+<script src="/console.js"></script>
+</body>
+</html>

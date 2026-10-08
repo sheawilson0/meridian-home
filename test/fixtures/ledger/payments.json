@@ -1,0 +1,130 @@
+[
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 104,
+    "receipt": "fixture-0"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-1"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-2"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-3"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-4"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-5"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-6"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-7"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-8"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-9"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-10"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-11"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-12"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-13"
+  },
+  {
+    "category": "ChatGPT Plus",
+    "account": "Example",
+    "paid_date": "July 27, 2026",
+    "currency": "GBP",
+    "amount": 10,
+    "receipt": "fixture-14"
+  },
+  {
+    "category": "OpenAI API",
+    "account": "Example",
+    "paid_date": "2026-07-27",
+    "currency": "USD",
+    "amount": 12,
+    "receipt": "fixture-api"
+  }
+]

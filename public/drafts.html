@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="/lab-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161618">
+<meta name="color-scheme" content="dark">
+<title>Drafts</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap">
+<script>
+try{const p=JSON.parse(localStorage.getItem('meridian.cc.prefs')||'{}');if(p.accent)document.documentElement.style.setProperty('--accent',p.accent);}catch{}
+</script>
+<style>
+/* Structural labels must not depend on the optional focus helper. */
+.a11y-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+/* Every draft, live and archived (6 Oct 2026). Drafts are never thrown away
+   now, so this is where the old ones are: past uni pages, sent emails. Same
+   surface as /draft so it sits in a side-panel tab.
+   Layout 3, "search first", from /design/drafts-layouts (8 Oct): search on its
+   own row, then chips. No chip on means everything; tap one to filter, tap it
+   again to clear it, and tapping another switches to it (they don't stack).
+   The order is fixed so the chips stay where your thumb expects them. */
+:root{
+  --accent:#f6c93a; --surface:#161618; --raised:#1d1d20; --well:rgba(255,255,255,.055); --well-hi:rgba(255,255,255,.09);
+  --ink:#f4f4f5; --body:#d4d4d8; --dim:#8e8e94; --dim2:#5f5f66; --hair:rgba(255,255,255,.07);
+  --good:#6cc39a; --agent:#8ea2ff; --f:'Outfit',-apple-system,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--surface);color:var(--ink);font:14px/1.45 var(--f);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit;background:none;border:0;outline:0;padding:0}
+button{cursor:default}
+svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.wrap{max-width:760px;margin:0 auto;padding:14px 16px 40px}
+.ltop{display:flex;align-items:center;gap:8px}
+.find{display:flex;align-items:center;gap:8px;height:38px;padding:0 11px;border-radius:11px;background:var(--well);color:var(--dim);flex:1;min-width:0;font-size:14.5px}
+.find:focus-within{background:var(--well-hi);color:var(--body)}
+.find input{width:100%;min-width:0;color:var(--ink)}
+.find input::placeholder{color:var(--dim2)}
+.find .k{font-size:11px;color:var(--dim2);white-space:nowrap}
+@media (hover:none){ .find .k{display:none} }
+.more{position:relative;flex:none}
+.new{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--accent);color:#1d1606}
+.new svg{width:17px;height:17px;stroke-width:2}
+.menu{position:absolute;right:0;top:44px;z-index:5;min-width:200px;padding:5px;border-radius:11px;background:#0a0a0b;box-shadow:0 0 0 .5px rgba(255,255,255,.1),0 18px 50px rgba(0,0,0,.6);display:none}
+.menu.open{display:block}
+.menu a{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;border-radius:7px;color:var(--body);font-size:13px;text-decoration:none}
+.menu a:hover{background:var(--well-hi);color:var(--ink)}
+.menu .h{padding:6px 10px 4px;color:var(--dim2);font-size:11.5px;font-weight:500}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:10px -16px 0;padding:0 16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:15px;font-size:12.5px;font-weight:500;color:var(--dim);box-shadow:inset 0 0 0 1px var(--hair);white-space:nowrap;flex:none}
+@media (hover:hover){ .chip:hover{color:var(--body)} }
+.chip[aria-pressed="true"]{background:var(--well-hi);color:var(--ink);box-shadow:none}
+.chip svg{width:14px;height:14px}
+.chip .n{font-weight:400;color:var(--dim2)}
+.vr{width:1px;background:var(--hair);margin:5px 2px;flex:none}
+@media (max-width:420px){ .chip{padding:0 9px} .chip.kind .n,.chip.arch .lbl,.chip.arch .n{display:none} }
+.list{margin-top:12px;border-radius:12px;background:var(--raised);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:11px 14px;text-decoration:none;color:inherit}
+.item+.item{box-shadow:0 -1px 0 var(--hair)}
+.item:hover{background:var(--well)}
+.ic{width:30px;height:30px;border-radius:8px;background:var(--well);display:grid;place-items:center;color:var(--dim);flex:none}
+.main{min-width:0;flex:1}
+.t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s{color:var(--dim);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s .ok{color:var(--good)} .s .ag{color:var(--agent)}
+.r{color:var(--dim2);font-size:12px;white-space:nowrap}
+.out{color:var(--dim);padding:6px;border-radius:7px;display:grid} .out:hover{background:var(--well-hi);color:var(--ink)}
+.empty{padding:28px 14px;text-align:center;color:var(--dim)}
+.day{padding:16px 2px 0;color:var(--dim2);font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.day svg{width:13px;height:13px}
+.day+.list{margin-top:6px}
+/* Keyboard focus gets a solid ring (the reset above removes the browser's); Increase contrast lifts muted text to 4.5:1. */
+:is(button,a[href]):focus-visible{outline:2px solid #ff5247;outline-offset:2px}
+@media (prefers-contrast: more){:root{--dim2:#89898e}}
+</style>
+</head>
+<body>
+<div class="wrap" role="main" id="draft-list"><h1 class="a11y-only">Drafts</h1>
+  <div class="ltop">
+    <label class="find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><input id="q" aria-label="Find a draft" placeholder="Find a draft" autocomplete="off" spellcheck="false"><span class="k">⌘K</span></label>
+    <div class="more">
+      <button class="new" id="newBtn" title="New draft" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <div class="menu" id="newMenu" role="menu"></div>
+    </div>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Filter"></div>
+  <div id="out"><div class="list"><div class="empty">Loading…</div></div></div>
+</div>
+<script src="/a11y.js"></script>
+<script src="/agent-colour.js"></script>
+<script>
+'use strict';
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ICON={
+  email:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>',
+  slack:'<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  text:'<path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/>',
+  notion:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M9 16V8l6 8V8"/>',
+  note:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  archive:'<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>',
+};
+const ic=(k)=>`<svg viewBox="0 0 24 24">${ICON[k]||ICON.note}</svg>`;
+const WORD={email:'Email',slack:'Slack',text:'Text',notion:'Notion page',note:'Note'};
+// The chips, in a fixed order. Messages is Slack and texts together.
+const CHIPS=[['notion','Notion'],['email','Email'],['msg','Messages']];
+const kindOk=(d,k)=>!k||(k==='msg'?['slack','text'].includes(d.kind):d.kind===k);
+const qs=new URLSearchParams(location.search);
+let view=qs.get('view')==='archived'?'archived':'live', kind='', live=[], archived=[];
+
+$('newMenu').innerHTML='<div class="h">New draft</div>'+['notion','email','slack','text','note'].map(k=>`<a href="/draft?new=${k}" role="menuitem">${ic(k)}${WORD[k]}</a>`).join('');
+
+async function load(){
+  const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),8000);
+  try{
+    const get=(a)=>fetch('/api/drafts?limit=200'+(a?'&archived=1':''),{signal:controller.signal}).then(r=>{ if(!r.ok)throw new Error(r.status); return r.json(); }).then(j=>j.drafts||[]);
+    [live,archived]=await Promise.all([get(false),get(true)]);
+  }catch(e){ $('out').innerHTML='<div class="list"><div class="empty">Can\'t reach Meridian. The Home Mac may be asleep.</div></div>'; return; }
+  finally{ clearTimeout(timer); }
+  draw();
+}
+function status(d){
+  if(d.status==='sent')return `<span class="ok">${d.kind==='notion'?'Published':'Sent'}</span>`;
+  if(d.status==='ready')return '<span class="ok">Approved</span>';
+  return d.lastBy&&d.lastBy!=='you'?`<span class="ag" style="color:${agentColour(d.lastBy)}">${esc(d.lastBy)} edited</span>`:'Drafting';
+}
+function when(iso){ const t=new Date(iso); const today=new Date(); today.setHours(0,0,0,0);
+  return t>=today?t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):t.toLocaleDateString([],{day:'numeric',month:'short'}); }
+function dayOf(iso){ const t=new Date(iso); return t.toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'}); }
+function matches(src){ const q=$('q').value.trim().toLowerCase();
+  return src.filter(d=>kindOk(d,kind)).filter(d=>!q||[d.title,d.to,d.subject,d.where,d.from,d.body].some(x=>String(x||'').toLowerCase().includes(q))); }
+function item(d){
+  const sub=[esc(WORD[d.kind]||d.kind), esc(d.kind==='notion'?d.where:d.to), status(d)].filter(Boolean);
+  return `<a class="item" href="/draft?id=${encodeURIComponent(d.id)}${qs.has('lab')?'&lab=1':''}"><span class="ic">${ic(d.kind)}</span>
+    <span class="main"><div class="t">${esc(d.title)}</div><div class="s">${sub.join(' · ')}</div></span>
+    ${d.sentUrl?`<span class="out" data-url="${esc(d.sentUrl)}" title="Open what was published"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg></span>`:''}
+    <span class="r">${when(d.updated)}</span></a>`;
+}
+// Archived drafts read better grouped by day; byDay false lists them flat.
+function block(rows,byDay){
+  const groups=[]; for(const d of rows){ const k=byDay?dayOf(d.updated):''; const g=groups[groups.length-1]; if(g&&g.k===k)g.items.push(d); else groups.push({k,items:[d]}); }
+  return groups.map(g=>(g.k?`<div class="day">${esc(g.k)}</div>`:'')+'<div class="list">'+g.items.map(item).join('')+'</div>').join('');
+}
+function chips(){
+  const src=view==='archived'?archived:live;
+  $('chips').innerHTML=CHIPS.map(([k,w])=>`<button class="chip kind" data-k="${k}" aria-pressed="${kind===k}">${ic(k==='msg'?'text':k)}${w} <span class="n">${src.filter(d=>kindOk(d,k)).length}</span></button>`).join('')
+    +`<span class="vr"></span><button class="chip arch" data-arch aria-pressed="${view==='archived'}" title="Archived">${ic('archive')}<span class="lbl">Archived</span> <span class="n">${archived.length}</span></button>`;
+}
+function draw(){
+  const focused=$('chips').contains(document.activeElement)?document.activeElement:null, filter=focused?.dataset.k, archive=focused?.hasAttribute('data-arch');
+  chips();
+  $('q').placeholder=view==='archived'?'Find in the archive':'Find a draft';
+  const q=$('q').value.trim();
+  const rows=matches(view==='archived'?archived:live);
+  // A search on your drafts also looks in the archive, under its own heading.
+  const more=view==='live'&&q?matches(archived):[];
+  let html=rows.length?block(rows,view==='archived'):'';
+  if(more.length)html+=`<div class="day">${ic('archive')} In the archive</div>`+block(more,false);
+  if(!html)html=`<div class="list"><div class="empty">${q||kind?'Nothing matches.':view==='archived'?'Nothing archived yet. Sent drafts move here after a day, and anything you archive.':'No drafts. Start one with your agent, or tap + for a new one.'}</div></div>`;
+  $('out').innerHTML=html;
+  if(focused)(archive?$('chips').querySelector('[data-arch]'):$('chips').querySelector('[data-k="'+CSS.escape(filter)+'"]'))?.focus({preventScroll:true});
+}
+function setView(v){ view=v; history.replaceState(null,'',view==='archived'?'?view=archived'+(qs.has('lab')?'&lab=1':''):location.pathname+(qs.has('lab')?'?lab=1':'')); draw(); }
+$('chips').addEventListener('click',e=>{
+  const k=e.target.closest('[data-k]'); if(k){ kind=kind===k.dataset.k?'':k.dataset.k; draw(); return; }
+  if(e.target.closest('[data-arch]'))setView(view==='archived'?'live':'archived');
+});
+$('q').addEventListener('input',draw);
+$('out').addEventListener('click',e=>{ const o=e.target.closest('[data-url]'); if(o){ e.preventDefault(); window.open(o.dataset.url,'_blank','noopener'); } });
+document.addEventListener('click',e=>{ const nb=e.target.closest('#newBtn'), m=$('newMenu'); const open=nb?!m.classList.contains('open'):false; m.classList.toggle('open',open); $('newBtn').setAttribute('aria-expanded',String(open)); if(open&&e.detail===0)m.querySelector('a')?.focus(); });
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('#newMenu')&&['ArrowDown','ArrowUp','Home','End'].includes(e.key)){ const items=[...$('newMenu').querySelectorAll('a')],i=items.indexOf(e.target); e.preventDefault(); items[e.key==='Home'?0:e.key==='End'?items.length-1:(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus(); }
+  if(e.key==='k'&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); $('q').focus(); $('q').select(); }
+  if(e.key==='Escape'){ if($('newMenu').classList.contains('open'))$('newBtn').focus(); $('newMenu').classList.remove('open'); $('newBtn').setAttribute('aria-expanded','false'); if(document.activeElement===$('q')&&$('q').value){ $('q').value=''; draw(); } }
+});
+load();
+addEventListener('focus',load);
+</script>
+</body>
+</html>

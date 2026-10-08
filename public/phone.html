@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meridian">
+<link rel="manifest" href="/dashboard.webmanifest" id="manifest">
+<link rel="apple-touch-icon" href="/dashboard-icon-180.png" id="touch-icon">
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<title>Meridian</title>
+<script>
+// /tell is this page opening straight on Tell. It gets its own Home Screen icon,
+// so the manifest, icon and name are swapped before Safari reads them.
+if (location.pathname === '/tell') {
+  document.getElementById('manifest').href = '/tell.webmanifest';
+  document.getElementById('touch-icon').href = '/tell-icon-180.png';
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content = 'Tell';
+  document.title = 'Tell Meridian';
+}
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/phone.css">
+<link rel="stylesheet" href="/themes/nothing-phone.css">
+<link rel="stylesheet" href="/feel.css">
+</head>
+<body>
+<div id="app" role="main"></div>
+<script src="/feel.js"></script>
+<script src="/a11y.js"></script>
+<script src="/phone.js"></script>
+<script>
+// An opt-in shell for flaky connections. Data stays in the phone's existing cache.
+(() => {
+  if (!('serviceWorker' in navigator)) return;
+  const q = new URLSearchParams(location.search);
+  let enabled = false;
+  try {
+    if (q.has('sw')) { if (q.get('sw') === 'off') localStorage.removeItem('meridian.sw'); else localStorage.setItem('meridian.sw', '1'); }
+    enabled = localStorage.getItem('meridian.sw') === '1';
+  } catch { enabled = q.has('sw') && q.get('sw') !== 'off'; }
+  if (q.get('sw') === 'off') {
+    navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.filter((r) => [r.active, r.waiting, r.installing].some((w) => w && new URL(w.scriptURL).pathname === '/phone-sw.js')).map((r) => { r.active?.postMessage({ type: 'phone-shell-disable' }); return r.unregister(); })))
+      .then(() => caches.keys()).then((keys) => Promise.all(keys.filter((k) => k.startsWith('meridian-phone-shell-')).map((k) => caches.delete(k)))).catch(() => {});
+    return;
+  }
+  if (!enabled) return;
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data?.type !== 'phone-shell-updated') return;
+    // An update must not throw away something Owner is typing.
+    if (document.activeElement?.matches('input,textarea')) return;
+    if ([...document.querySelectorAll('input,textarea')].some((el) => el.value && el.getClientRects().length)) return;
+    location.reload();
+  });
+  const register = () => navigator.serviceWorker.register('/phone-sw.js', { scope: '/', updateViaCache: 'none' }).then((r) => r.update()).catch(() => {});
+  if (document.readyState === 'complete') register(); else window.addEventListener('load', register, { once: true });
+})();
+</script>
+</body>
+</html>

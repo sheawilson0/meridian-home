@@ -1,0 +1,11 @@
+{
+  "name": "meridian",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --require ./test/helpers/isolate.cjs --test --test-concurrency=2 test/*.test.js",
+    "doctor": "node scripts/doctor.js",
+    "dev": "node --watch server.js",
+    "demo": "MERIDIAN_DEMO=1 node server.js"
+  }
+}

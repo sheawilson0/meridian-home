@@ -1,0 +1,122 @@
+/* Nothing: a look after Nothing OS (tried 7 Oct 2026, /design/nothing).
+   Black, white and one red. Big numbers and the greeting in Doto (an open dot-matrix face,
+   standing in for Nothing's own Ndot), labels in small Space Mono capitals, body in Space Grotesk.
+   A dot grid sits still under the page while the cards scroll over it, like nothing.tech.
+   Tokens first, so every component follows; the overrides after that only change shape and type.
+   Fonts are loaded by applyPrefs when this look is on. */
+
+:root[data-surface="nothing"]{
+  --frame:#000; --page:#000; --card:#111112; --card-2:#1a1a1b; --well:#1e1e1f; --well-hi:#2a2a2b;
+  --ink:#fff; --body:#d4d4d4; --dim:#8a8a8a; --dim2:#575757; --line:transparent; --line-hi:rgba(255,255,255,.16);
+  --good:#fff; --bad:#d71921; --warn:#fff; --pop:#141415;
+  --accent:#d71921 !important; --accent-ink:#fff !important; --accent-text:#ff3a3a;
+  --f-dot:'Doto','Space Mono',ui-monospace,monospace;
+  --f-display:var(--f-dot); --f-body:'Space Grotesk',system-ui,sans-serif; --f-mono:'Space Mono',ui-monospace,monospace;
+  --f-title:'Space Grotesk',system-ui,sans-serif; --title-style:normal; --title-weight:500; --title-track:-.025em;
+  --r-card:28px; --r-ctl:14px; --r-tile:20px;
+  --tint-a:0%; --grain:0 !important;
+  --nd-grid:radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1.5px);
+  --nd-label:400 10.5px/1.2 var(--f-mono);
+  color-scheme:dark;
+}
+
+/* The grid. The page is the scroller, so a plain background stays put while the content moves. */
+/* Doto's ROND axis at 100 gives round dots, closer to Ndot than the default squares. */
+[data-surface="nothing"] :is(.brand span,.hero h1,.vhead h1,.nx-t,.due-n){font-variation-settings:'ROND' 100}
+[data-surface="nothing"] .page{background-color:#000;background-image:var(--nd-grid);background-size:16px 16px;background-position:8px 8px}
+[data-surface="nothing"] .app::after{display:none}
+
+/* Labels: small capitals in mono, the way Nothing writes every heading on a widget. */
+[data-surface="nothing"] :is(.ch h2,.sec-h h3){font:var(--nd-label);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink)}
+[data-surface="nothing"] :is(.ch .sub,.sec-h .sub){font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2)}
+[data-surface="nothing"] .ch .ico{color:var(--accent);width:15px;height:15px}
+[data-surface="nothing"] :is(.mono,kbd,.tab .n,.tab .k,.mag-t,.ag-day span){font-family:var(--f-mono);letter-spacing:.02em}
+[data-surface="nothing"] kbd{background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);border-radius:6px}
+
+/* Sidebar */
+[data-surface="nothing"] .brand span{font-family:var(--f-dot);font-style:normal;font-weight:800;font-size:19px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .searchbtn{border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+[data-surface="nothing"] .searchbtn kbd{box-shadow:none}
+/* The top shelf as round icons, like a Nothing home screen in monochrome. */
+[data-surface="nothing"] .ess-tile{aspect-ratio:1;border-radius:50%;background:var(--card-2);border:0}
+[data-surface="nothing"] .ess-tile img{filter:grayscale(1) contrast(1.15)}
+[data-surface="nothing"] .ess-tile:hover{background:#fff;color:#000}
+[data-surface="nothing"] .ess-tile:hover img{filter:grayscale(1) invert(1)}
+[data-surface="nothing"] .tab{border-radius:999px;font-size:13.5px}
+[data-surface="nothing"] :is(.btn,.ibtn){border-radius:999px}
+[data-surface="nothing"] .tab.on{background:#fff;color:#000}
+[data-surface="nothing"] .tab.on .ico{color:#000}
+[data-surface="nothing"] .tab.on .n{color:#000;opacity:.55}
+[data-surface="nothing"] .tab.on::before{display:none}
+[data-surface="nothing"] .tab .n.hot{color:var(--accent-text)}
+[data-surface="nothing"] .side-h{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px}
+
+/* Header: the greeting in dots, the planet turned into a dot-matrix screen. */
+[data-surface="nothing"] .hero h1{font-family:var(--f-dot);font-weight:800;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(40px,5.4vw,72px);line-height:.95}
+[data-surface="nothing"] .hero h1 .stop{color:var(--accent);animation:nd-glyph 4.8s ease-in-out 1.2s infinite}
+[data-surface="nothing"] .hero .line{font-family:var(--f-body);font-style:normal;font-weight:400;font-size:clamp(15px,1.35vw,18px);color:var(--body);max-width:680px;letter-spacing:-.005em}
+[data-surface="nothing"] .hero .meta span{font-family:var(--f-mono);font-size:10.5px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;background:rgba(0,0,0,.55);box-shadow:inset 0 0 0 1px var(--line-hi);padding:5px 11px}
+[data-surface="nothing"] .hero .meta span:first-child::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:1px}
+[data-surface="nothing"] .hero .credit{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2)}
+[data-surface="nothing"] .hero .bg{filter:grayscale(1) contrast(1.4) brightness(.85);
+  -webkit-mask-image:radial-gradient(circle,#000 1.3px,transparent 1.7px),linear-gradient(180deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.55) 45%,transparent 92%);
+  mask-image:radial-gradient(circle,#000 1.3px,transparent 1.7px),linear-gradient(180deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.55) 45%,transparent 92%);
+  -webkit-mask-size:5px 5px,100% 100%;mask-size:5px 5px,100% 100%;
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+[data-surface="nothing"] .hero .bg::after{display:none}
+/* A soft black pool behind the words, so they read over the dots. */
+[data-surface="nothing"] .hero::before{content:'';position:absolute;left:0;bottom:0;width:min(1000px,80%);height:80%;background:radial-gradient(70% 70% at 25% 75%,rgba(0,0,0,.85),transparent 75%);pointer-events:none}
+[data-surface="nothing"] .hero>:not(.bg){position:relative}
+[data-surface="nothing"] .hero>.credit{position:absolute}
+
+/* Cards: flat, very round, no lines. A faint dot texture comes up under the pointer. */
+[data-surface="nothing"] .card{border:0;background-color:var(--card);transition:background-color .2s}
+[data-surface="nothing"] .card:hover{background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1.5px);background-size:8px 8px}
+[data-surface="nothing"] .vhead h1{font-family:var(--f-dot);font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+[data-surface="nothing"] .vhead p{font-size:14px}
+
+/* Up next: the next meeting is a white widget with the time in dots. */
+[data-surface="nothing"] .nx,[data-surface="nothing"] .nx.nx-line,[data-surface="nothing"] .nx.nx-open{background:#fff;color:#000;border-radius:22px;padding:18px 20px;margin:0 0 12px}
+[data-surface="nothing"] .nx.nx-line::before{display:none}
+[data-surface="nothing"] .nx-t{font-family:var(--f-dot);font-weight:800;font-size:46px;letter-spacing:0;color:#000}
+[data-surface="nothing"] .nx.nx-open .nx-t{font-size:46px}
+[data-surface="nothing"] .nx-t small{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#777}
+[data-surface="nothing"] .nx .when{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+[data-surface="nothing"] .nx .when::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px;box-shadow:none;animation:nd-glyph 2.4s ease-in-out infinite}
+[data-surface="nothing"] .nx .what{font-family:var(--f-body);font-weight:500;font-size:22px;letter-spacing:-.02em;color:#000}
+[data-surface="nothing"] .nx .how{color:#666}
+[data-surface="nothing"] .nx :is(.btn,a,button){color:#000}
+[data-surface="nothing"] .nx .btn{background:#000;color:#fff;border-radius:999px}
+[data-surface="nothing"] .ag-bar,[data-surface="nothing"] .ag-bar.sm{width:7px;height:7px;min-height:7px;border-radius:50%;align-self:center}
+/* Deadlines count down in dots. */
+[data-surface="nothing"] .due-n{font-family:var(--f-dot);font-weight:800;font-size:26px;letter-spacing:0}
+[data-surface="nothing"] .due-n small{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .dl-row.close .due-n{color:var(--accent-text)}
+[data-surface="nothing"] .dl-bar{height:6px;background:radial-gradient(circle,#333 1.3px,transparent 1.7px) 0 50%/6px 6px repeat-x!important;border-radius:0}
+[data-surface="nothing"] .dl-bar i{height:6px;background:radial-gradient(circle,#fff 1.3px,transparent 1.7px) 0 50%/6px 6px repeat-x!important;border-radius:0}
+[data-surface="nothing"] .dl-row.close .dl-bar i{background-image:radial-gradient(circle,var(--accent) 1.3px,transparent 1.7px)!important}
+[data-surface="nothing"] .mag-d{font-family:var(--f-mono);font-size:10.5px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+
+/* Controls: pills, outlined until chosen, then white. */
+[data-surface="nothing"] .chip{border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+[data-surface="nothing"] .chip[aria-pressed="true"]{background:#fff;color:#000;box-shadow:none}
+[data-surface="nothing"] .seg{border-radius:999px}
+[data-surface="nothing"] .seg button{border-radius:999px}
+[data-surface="nothing"] .seg button:is([aria-pressed="true"],[aria-selected="true"]){background:#fff;color:#000}
+[data-surface="nothing"] .btn.primary{background:#fff;color:#000;border-radius:999px}
+[data-surface="nothing"] :where(input:not([type=checkbox],[type=radio],[type=range],[type=color]),select){border-radius:999px;padding-left:16px}
+[data-surface="nothing"] textarea{border-radius:20px}
+[data-surface="nothing"] .tick{background:transparent;box-shadow:inset 0 0 0 1.5px #555}
+[data-surface="nothing"] .tick:hover{background:#fff;box-shadow:none;color:#000}
+[data-surface="nothing"] .tick.ticked{background:var(--accent);color:#fff;box-shadow:none}
+[data-surface="nothing"] .row:hover{background:var(--card-2)}
+
+/* Floating things: black glass with a hairline, like the OS's pop-ups. */
+[data-surface="nothing"] :is(.pal,.menu,.sheet,.drawer-r,.switcher){border-radius:28px;box-shadow:0 0 0 1px var(--line-hi),0 30px 80px rgba(0,0,0,.8)}
+[data-surface="nothing"] .tip{font-family:var(--f-mono);font-size:11px;letter-spacing:.02em;border-radius:12px}
+[data-surface="nothing"] .toast{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.05em;font-size:11px;border-radius:999px}
+[data-surface="nothing"] .agentstrip>*{border-radius:999px}
+
+/* One small glyph: the red dot breathes like the light on the back of the phone. */
+@keyframes nd-glyph{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){[data-surface="nothing"] :is(.hero h1 .stop,.nx .when::before){animation:none}}

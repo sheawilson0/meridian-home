@@ -1,0 +1,86 @@
+/* Feel (8 Oct 2026): the styles for feel.js. Colours come from the page's own --accent and --ink, so every look can
+   use it; Nothing gets its dot type for the big numbers. */
+.feel-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:90;pointer-events:none}
+
+/* Ticking a to-do: a line draws across the words, the tick goes solid, the row settles. */
+.feel-x{background:linear-gradient(currentColor,currentColor) no-repeat 0 56%/0% 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:feel-cross .38s cubic-bezier(.2,.9,.25,1) .05s forwards}
+@keyframes feel-cross{to{background-size:100% 1.5px}}
+.feel-done{transition:opacity .35s .3s,color .3s}
+.feel-done :is(.t,.main){color:var(--dim)}
+.feel-done{opacity:.5}
+.feel-done .feel-x,.row.done .feel-x{text-decoration:none}
+.row.done:has(.feel-x) .t{text-decoration:none}
+.tick.feel-ticked{background:var(--accent)!important;color:var(--accent-ink,#fff)!important;box-shadow:none!important;animation:feel-pop .32s cubic-bezier(.3,1.4,.4,1)}
+@keyframes feel-pop{0%{transform:scale(.8)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* The sky arc in the Home header. */
+.feel-sky,:root[data-surface] .hero>.feel-sky{position:absolute;right:clamp(16px,3vw,40px);top:clamp(14px,2vw,26px);width:min(260px,24vw);z-index:1;pointer-events:none;text-align:right}
+.feel-sky canvas{display:block;width:100%;height:clamp(52px,5.4vw,78px)}
+.feel-sky .fs-t{font-family:var(--f-dot,var(--f-mono,ui-monospace));font-variation-settings:'ROND' 100;font-weight:800;font-size:clamp(28px,3vw,44px);line-height:.85;color:var(--ink);margin-top:8px;letter-spacing:0}
+.feel-sky .fs-l{font:400 10.5px/1.3 var(--f-mono,ui-monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.feel-sky .fs-l b{color:var(--ink);font-weight:400}
+@media (max-width:900px){.feel-sky{display:none}}
+
+/* Agent rings in Live now and the strip. */
+.feel-ring{display:block;overflow:visible;flex:none}
+.feel-ring .feel-head{animation:feel-breathe 1.6s ease-in-out infinite}
+@keyframes feel-breathe{0%,100%{opacity:1}50%{opacity:.3}}
+.feel-rrow{display:flex;align-items:center;gap:14px;padding:8px 2px}
+.feel-rrow .fr-w{position:relative;width:52px;height:52px;flex:none}
+.feel-rrow .fr-w span{position:absolute;inset:0;display:grid;place-items:center;font:400 11px/1 var(--f-mono,ui-monospace);color:var(--ink)}
+[data-surface="nothing"] .feel-rrow .fr-w span{font-family:var(--f-dot);font-variation-settings:'ROND' 100;font-weight:800;font-size:15px}
+.feel-rrow .main{min-width:0;flex:1}
+.feel-rrow .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feel-rrow .s{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feel-rrow .s .over{color:var(--accent-text,var(--accent))}
+.as-it .feel-ring{margin-right:2px}
+
+/* Launch: the page sinks back as the warp starts. */
+.feel-launching .app{transition:transform .65s cubic-bezier(.5,0,.75,0),opacity .65s,filter .65s;transform:scale(.94);opacity:.2;filter:blur(3px)}
+.feel-standby .app{opacity:0}
+.feel-on .app{transition:transform .5s cubic-bezier(.2,.9,.25,1),opacity .5s,filter .5s}
+
+/* Standby. */
+.feel-sb{position:fixed;inset:0;z-index:80;background:#000;color:#fff;opacity:0;pointer-events:none;transition:opacity .6s cubic-bezier(.2,.9,.25,1);cursor:pointer;
+  --ink:#fff;--dim:#8a8a8a;--feel-ring-off:#2e2e2e;-webkit-user-select:none;user-select:none;
+  background-image:radial-gradient(circle,rgba(255,255,255,.09) 1px,transparent 1.5px);background-size:16px 16px;background-position:8px 8px}
+.feel-sb.on{opacity:1;pointer-events:auto}
+.feel-sb .sb-in{position:absolute;inset:max(22px,env(safe-area-inset-top)) max(28px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(28px,env(safe-area-inset-left));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,26px);transition:transform 2s}
+.feel-sb .sb-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between}
+.feel-sb .sb-lab{font:400 11px/1.3 'Space Mono',var(--f-mono,ui-monospace),monospace;letter-spacing:.1em;text-transform:uppercase;color:#8a8a8a}
+.feel-sb .sb-lab b{color:#fff;font-weight:400}
+.feel-sb .sb-sky{position:relative;flex:none;height:clamp(70px,18vh,180px);max-width:900px;width:100%}
+.feel-sb .sb-sky canvas{position:absolute;inset:0;width:100%;height:100%}
+.feel-sb .sb-clock{font-family:'Doto',var(--f-dot,ui-monospace),monospace;font-variation-settings:'ROND' 100;font-weight:800;font-size:clamp(110px,24vw,330px);line-height:.8;color:#e6e6e6;letter-spacing:0;margin-top:-.05em}
+.feel-colon{display:inline-block;width:.24em;height:.56em;margin:0 .04em;vertical-align:.1em;
+  background:radial-gradient(circle at 50% 18%,currentColor .045em,transparent .052em),radial-gradient(circle at 50% 82%,currentColor .045em,transparent .052em)}
+.feel-sb .sb-colon{animation:feel-blink 1s steps(1) infinite}
+@keyframes feel-blink{50%{opacity:.15}}
+.feel-sb .sb-micro{text-align:center;max-width:960px;font:400 clamp(12px,1.5vw,19px)/1.8 'Space Mono',var(--f-mono,ui-monospace),monospace;letter-spacing:.05em;text-transform:uppercase;color:#bbb}
+.feel-sb .sb-micro .pl{background:#fff;color:#000;border-radius:999px;padding:0 .45em}
+.feel-sb .sb-micro .rd{background:var(--accent);color:#fff;border-radius:999px;padding:0 .45em}
+.feel-sb .sb-rings{display:flex;gap:30px;flex-wrap:wrap;justify-content:center}
+.feel-sb .sb-ring{position:relative;display:flex;align-items:center;gap:12px}
+.feel-sb .sb-ring .sb-pc{position:absolute;left:0;top:0;width:84px;height:84px;display:flex;align-items:center;justify-content:center;font-family:'Doto',monospace;font-variation-settings:'ROND' 100;font-weight:800;font-size:22px}
+.feel-sb .sb-ring b{display:block;font:400 11px/1.3 'Space Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+.feel-sb .sb-ring div span{font-size:13px;color:#aaa}
+.feel-sb .sb-foot{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center}
+.feel-sb .sb-btn{height:34px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:#ddd;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);font:400 10.5px/1 'Space Mono',monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.feel-sb .sb-btn:hover{background:#fff;color:#000}
+.feel-sb .sb-btn[hidden]{display:none}
+.feel-sb .sb-pomo{position:relative;flex:none;width:220px;height:220px}
+.feel-sb .sb-pomo[hidden]{display:none}
+.feel-sb .sb-pomo-ring{position:absolute;inset:0}
+.feel-sb .sb-pomo-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Doto',monospace;font-variation-settings:'ROND' 100;font-weight:800;font-size:58px}
+/* With a focus timer running, the clock steps back and the timer leads. */
+.feel-sb.pomo-on .sb-clock{font-size:clamp(48px,8vw,96px)}
+.feel-sb.pomo-on .sb-sky,.feel-sb.pomo-on .sb-rings{display:none}
+/* Late at night: everything dim red, so it can sit by a bed or a desk without lighting the room. */
+.feel-sb.night{background-image:none;--ink:#d71921;--feel-ring-off:#2a0608}
+.feel-sb.night :is(.sb-clock,.sb-micro,.sb-lab,.sb-lab b,.sb-ring b,.sb-ring span,.sb-pomo-t,.sb-btn){color:#a3141a!important}
+.feel-sb.night .sb-micro :is(.pl,.rd){background:#3a0709;color:#c8161d}
+.feel-sb.night .sb-clock{opacity:.8}
+/* A phone on its side: smaller clock, no rings. */
+@media (max-height:500px){.feel-sb .sb-clock{font-size:min(36vh,26vw)}.feel-sb .sb-rings{display:none}.feel-sb .sb-sky{height:20vh}}
+
+@media (prefers-reduced-motion:reduce){.feel-x{animation:none;background-size:100% 1.5px}.tick.feel-ticked,.feel-ring .feel-head,.feel-sb .sb-colon{animation:none}.feel-launching .app,.feel-on .app{transition:none}}

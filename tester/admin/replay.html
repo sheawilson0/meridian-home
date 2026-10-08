@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Replay · Meridian test</title>
+<link rel="stylesheet" href="/vendor/rrweb/rrweb-player-2.1.7.min.css">
+<link rel="stylesheet" href="/replay.css">
+</head>
+<body>
+<header class="top">
+  <a class="back" href="/">&larr; All sessions</a>
+  <div class="who"><span class="name" id="who">Replay</span><span class="when mono" id="when"></span></div>
+  <dl class="facts" id="facts"></dl>
+</header>
+<main class="body">
+  <section class="stage" id="stage">
+    <div class="player" id="player"><p class="note" id="note">Loading the recording&hellip;</p></div>
+    <div class="strip" id="strip" hidden>
+      <div class="lane tasks" id="lane-tasks"></div>
+      <div class="lane dots" id="lane-dots"></div>
+      <div class="head" id="head"></div>
+    </div>
+    <div class="legend" id="legend" hidden>
+      <span><i class="dot"></i>Click</span><span><i class="dot rage"></i>Rage</span><span><i class="dot dead"></i>Dead</span>
+      <span class="keys">Space play/pause &middot; &larr; &rarr; 5 s</span>
+    </div>
+  </section>
+  <aside class="side">
+    <h2>Tasks</h2>
+    <ol class="tasks" id="tasks"></ol>
+    <h2 id="notes-h" hidden style="margin-top:18px">Notes</h2>
+    <ol class="clicks" id="notes"></ol>
+    <div class="clickhead">
+      <h2>Clicks</h2>
+      <div class="filters" id="filters" role="group" aria-label="Show">
+        <button type="button" data-f="all" aria-pressed="true">All</button>
+        <button type="button" data-f="rage" aria-pressed="false">Rage</button>
+        <button type="button" data-f="dead" aria-pressed="false">Dead</button>
+      </div>
+    </div>
+    <ol class="clicks" id="clicks"></ol>
+  </aside>
+</main>
+<script src="/vendor/rrweb/rrweb-player-2.1.7.min.js"></script>
+<script src="/replay.js"></script>
+</body>
+</html>

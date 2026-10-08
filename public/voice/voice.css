@@ -1,0 +1,69 @@
+/* Voice prototype (6 Oct 2026). Same surface and type as draft.html so it
+   can sit in a side-panel tab. Author colours live here as --w-*; the
+   draft-review design may replace them. */
+:root{
+  --surface:#161618; --raised:#1d1d20; --well:rgba(255,255,255,.055); --well-hi:rgba(255,255,255,.09);
+  --ink:#f4f4f5; --body:#d4d4d8; --dim:#8e8e94; --dim2:#5f5f66; --hair:rgba(255,255,255,.07);
+  --w-you:#7cc4ff; --w-voice:#ffb35c; --w-dot:#5fd4b0; --w-agent:#a9a0ff; --w-old:#d4d4d8;
+  --live:#ff5a4e; --ease:cubic-bezier(.2,.9,.25,1);
+  --f:'Outfit',-apple-system,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--surface);color:var(--ink);font:14px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+button,select{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+a{color:var(--w-you)}
+
+/* ---- who wrote what */
+.w{border-radius:3px;transition:background-color 2.5s ease}
+.w-you{color:color-mix(in oklab,var(--w-you) 70%,var(--ink))}
+.w-voice{color:color-mix(in oklab,var(--w-voice) 80%,var(--ink))}
+.w-dot{color:color-mix(in oklab,var(--w-dot) 80%,var(--ink))}
+.w-agent{color:color-mix(in oklab,var(--w-agent) 80%,var(--ink))}
+.w-old{color:var(--body)}
+.w.fresh.w-voice{background:color-mix(in oklab,var(--w-voice) 22%,transparent)}
+.w.fresh.w-dot{background:color-mix(in oklab,var(--w-dot) 22%,transparent)}
+.w.fresh.w-agent{background:color-mix(in oklab,var(--w-agent) 22%,transparent)}
+.w.fresh.w-you{background:color-mix(in oklab,var(--w-you) 14%,transparent)}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);padding:3px 9px 3px 7px;border-radius:99px;background:var(--well)}
+.legend i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.legend .you i{color:var(--w-you)} .legend .voice i{color:var(--w-voice)} .legend .dot i{color:var(--w-dot)} .legend .agent i{color:var(--w-agent)}
+
+/* ---- the overlay editor: coloured text behind a transparent textarea */
+.ed{position:relative}
+.ed-back,.ed-ta{font:inherit;line-height:inherit;letter-spacing:inherit;padding:10px 12px;margin:0;border:0;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;tab-size:4}
+.ed-back{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ed-ta{position:relative;display:block;width:100%;resize:none;overflow:hidden;background:transparent;color:transparent;caret-color:var(--ink);outline:0;min-height:42px}
+.ed-ta::placeholder{color:var(--dim2)}
+.ed-ta::selection{background:rgba(124,196,255,.28);color:transparent}
+.ed{border-radius:12px;background:var(--well);transition:background .15s}
+.ed:focus-within{background:var(--well-hi)}
+
+/* ---- toast */
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a2a2e;color:var(--ink);padding:10px 14px;border-radius:12px;font-size:13px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:9;max-width:calc(100vw - 32px)}
+.toast button{color:var(--w-you);font-weight:600}
+
+/* ---- the talk button */
+.talk{position:relative;width:96px;height:96px;border-radius:50%;background:var(--raised);display:grid;place-items:center;transition:transform .2s var(--ease),background .2s}
+.talk:hover{transform:scale(1.03)}
+.talk svg{width:30px;height:30px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.talk .ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--w-voice);opacity:0;transform:scale(calc(1 + var(--lvl,0) * .18));transition:transform .08s linear,opacity .2s}
+.talk[data-state="live"]{background:var(--live)}
+.talk[data-state="live"] .ring{opacity:.8}
+.talk[data-state="connecting"],.talk[data-state="ending"]{background:#3a3a3f}
+.talk[data-state="connecting"] .ring{opacity:.5;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12);opacity:.15}}
+
+.captions{font-size:13.5px;line-height:1.45;color:var(--body);max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.captions p{margin:0}
+.captions .c-voice{color:color-mix(in oklab,var(--w-voice) 75%,var(--ink))}
+.captions .c-you{color:var(--dim)}
+.captions .c-tool{font-size:12px;color:var(--dim2);font-family:ui-monospace,Menlo,monospace}
+.seg{display:flex;gap:2px;padding:3px;border-radius:10px;background:var(--well)}
+.seg button{flex:1;height:30px;padding:0 10px;border-radius:7px;color:var(--dim);font-size:12.5px;font-weight:500;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--well-hi);color:var(--ink)}
+.seg button:disabled{opacity:.4;cursor:default}
+select{background:var(--well);border:0;border-radius:9px;height:32px;padding:0 10px;color:var(--ink)}
+.dim{color:var(--dim)} .small{font-size:12.5px}
+.warn{background:rgba(255,179,92,.1);color:#ffcf96;border-radius:10px;padding:10px 12px;font-size:13px}

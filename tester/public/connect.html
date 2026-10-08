@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Meridian · Make it yours</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,1,400;9..144,1,500&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="/tester/pages.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="brand"><img src="/dashboard-icon.svg" alt="" width="28" height="28"><span>Meridian</span><em>test copy</em><a href="/#home" id="back">← Back to Meridian</a></header>
+
+  <h1>Make it yours</h1>
+  <p class="lede">Bring in a few real things from your week, so Meridian shows your day instead of Sam’s. They only go into your test copy. Add only what you’re happy for Owner to see.</p>
+
+  <section class="card">
+    <h2>Whose day</h2>
+    <div class="seg" role="radiogroup" aria-label="Whose day">
+      <label><input type="radio" name="world" value="sam"> Keep Sam’s day, and add mine</label>
+      <label><input type="radio" name="world" value="blank"> Only my things</label>
+    </div>
+  </section>
+
+  <section class="card" id="tell-card">
+    <h3>Tell it about your day</h3>
+    <p>Type or paste what’s on your plate: meetings, things people have asked you for, your own to-dos, deadlines, what your agents are doing. Messy is fine. An AI sorts it into the right places.</p>
+    <textarea id="tell-text" placeholder="Call with Dan at 3 about the launch&#10;Priya wants the Q4 deck by Friday (Slack)&#10;Finish the onboarding copy&#10;Codex is fixing the carousel bug on the site"></textarea>
+    <div class="row">
+      <button type="button" class="btn primary" id="tell-go">Add to Meridian</button>
+      <button type="button" class="btn sm" id="gpt-copy">Copy a prompt for ChatGPT</button>
+      <span class="hint" id="tell-msg"></span>
+    </div>
+    <p class="hint" id="gpt-hint" hidden>Copied. If your ChatGPT can see your Outlook or Slack, paste this into it, then paste its answer here.</p>
+    <div class="result" id="tell-out"></div>
+  </section>
+
+  <section class="card">
+    <h3>Connect your own agent</h3>
+    <p>Give an agent you already use this address. It can then put your meetings, asks and to-dos on your Meridian, and show what it’s working on in the strip along the bottom, live.</p>
+    <div class="copybox"><code id="mcp-url">…</code><button type="button" class="btn sm" data-copy="mcp-url">Copy</button></div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="on" data-tab="codex">Codex</button>
+      <button type="button" data-tab="chatgpt">ChatGPT</button>
+      <button type="button" data-tab="claude">Claude</button>
+    </div>
+    <div data-pane="codex">
+      <ol class="steps">
+        <li>In a terminal: <span class="copybox" style="display:inline-flex;margin:4px 0;padding:3px 3px 3px 10px"><code id="codex-cmd">codex mcp add meridian-test --url …</code><button type="button" class="btn sm" data-copy="codex-cmd">Copy</button></span></li>
+        <li>Start a Codex task as normal, and add: <i>“As you work, keep my Meridian up to date with agent_status.”</i></li>
+        <li>Watch the strip at the bottom of Meridian. To take it off again: <code>codex mcp remove meridian-test</code></li>
+      </ol>
+    </div>
+    <div data-pane="chatgpt" hidden>
+      <ol class="steps">
+        <li>This needs ChatGPT Plus or Pro with developer mode on (Settings → Apps → Advanced). Work accounts often block it; if yours does, use “Copy a prompt for ChatGPT” above instead.</li>
+        <li>Go to <code>chatgpt.com/plugins</code>, press <b>+</b>, then <b>Add custom MCP server</b>. Name it <i>Meridian test</i>, paste the address, choose <b>No authentication</b>, and create it.</li>
+        <li>In a chat, try: <i>“@Meridian test put today’s meetings from my Outlook calendar on my Meridian.”</i></li>
+      </ol>
+    </div>
+    <div data-pane="claude" hidden>
+      <ol class="steps">
+        <li>In Claude: Settings → Connectors → <b>Add custom connector</b>, and paste the address.</li>
+        <li>Or in Claude Code: <span class="copybox" style="display:inline-flex;margin:4px 0;padding:3px 3px 3px 10px"><code id="claude-cmd">claude mcp add --transport http meridian-test …</code><button type="button" class="btn sm" data-copy="claude-cmd">Copy</button></span></li>
+        <li>Then ask it to keep your Meridian up to date as it works.</li>
+      </ol>
+    </div>
+    <p class="hint">The address only opens your test copy. Anyone with it can add things to it, so keep it to yourself.</p>
+  </section>
+
+  <section class="card">
+    <h3>Add your calendar link</h3>
+    <p>A published calendar link (.ics) brings in your next week of meetings. In Outlook on the web: Settings → Calendar → Shared calendars → Publish a calendar, then copy the ICS link. In Google Calendar: your calendar’s settings → Secret address in iCal format. Many work accounts turn publishing off; if yours has, skip this.</p>
+    <div class="row" style="margin-top:0">
+      <input type="url" id="ics-url" placeholder="https://outlook.office365.com/owa/calendar/…/calendar.ics" style="flex:1;min-width:240px">
+      <button type="button" class="btn" id="ics-go">Add</button>
+    </div>
+    <p class="hint" id="ics-msg"></p>
+  </section>
+
+  <p class="small"><button type="button" class="linkish" id="reset">Start again with Sam’s day</button> · <button type="button" class="linkish" id="forget">Delete everything I did</button></p>
+</main>
+<script>
+(function(){
+  const $=(id)=>document.getElementById(id);
+  const esc=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const mark=(name,data)=>{ try{ window.meridianMark&&window.meridianMark(name,data); }catch{} };
+  async function post(p,b){ const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(b||{})}); const j=await r.json().catch(()=>({})); if(!r.ok||j.ok===false)throw new Error(j.error||'Something went wrong'); return j; }
+  const GPT_PROMPT='Look at my Outlook calendar, email and Slack. For today and the next two days, list:\n- my meetings (time, title, who with)\n- anything someone has asked me to do or reply to (who, what, and where they asked)\n- my own to-dos and any deadlines\nPlain text, one line each. Leave out anything confidential.';
+
+  fetch('/t-api/me',{credentials:'same-origin'}).then(r=>r.json()).then(me=>{
+    $('mcp-url').textContent=me.agentUrl;
+    $('codex-cmd').textContent='codex mcp add meridian-test --url '+me.agentUrl;
+    $('claude-cmd').textContent='claude mcp add --transport http meridian-test '+me.agentUrl;
+    document.querySelectorAll('input[name=world]').forEach(r=>{ r.checked=r.value===(me.world||'sam'); });
+    if(me.ai===false){ $('tell-card').querySelector('p').textContent='Sorting is switched off for this test.'; $('tell-go').disabled=true; }
+  }).catch(()=>{});
+
+  document.querySelectorAll('input[name=world]').forEach(r=>r.addEventListener('change',async()=>{ try{ await post('/t-api/world',{world:r.value}); mark('world',{world:r.value}); }catch(err){ alert(err.message); } }));
+  document.addEventListener('click',async e=>{
+    const c=e.target.closest('[data-copy]');
+    if(c){ try{ await navigator.clipboard.writeText($(c.dataset.copy).textContent); c.textContent='Copied'; setTimeout(()=>c.textContent='Copy',1600); mark('copy',{what:c.dataset.copy}); }catch{ c.textContent='Select and copy'; } return; }
+    const t=e.target.closest('[data-tab]');
+    if(t){ document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b===t)); document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t.dataset.tab); return; }
+  });
+  $('gpt-copy').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(GPT_PROMPT); $('gpt-hint').hidden=false; mark('copy',{what:'gpt-prompt'}); }catch{ $('tell-text').value=GPT_PROMPT; } });
+
+  $('tell-go').addEventListener('click',async()=>{
+    const text=$('tell-text').value.trim(); if(!text){ $('tell-msg').textContent='Write or paste a few things first.'; return; }
+    $('tell-go').disabled=true; $('tell-msg').innerHTML='<span class="spin"></span> Sorting it out… (about ten seconds)';
+    try{
+      const j=await post('/t-api/tell',{text,now:Date.now(),tz:Intl.DateTimeFormat().resolvedOptions().timeZone});
+      const a=j.added, parts=[];
+      const group=(k,label)=>{ if(a[k]&&a[k].length)parts.push(`<li><b>${label}:</b> ${a[k].map(esc).join(' · ')}</li>`); };
+      group('events','Meetings'); group('asks','Asks from people'); group('todos','To-dos'); group('deadlines','Deadlines'); group('agents','Agents'); group('notes','Notes in Stash');
+      $('tell-out').innerHTML=parts.length?`<span class="ok">Added.</span> <a href="/#home" style="color:inherit">See it on Meridian →</a><ul>${parts.join('')}</ul>`:'Nothing to add from that. Try a few lines about meetings, asks or to-dos.';
+      $('tell-out').classList.add('on'); $('tell-msg').textContent=''; $('tell-text').value='';
+      mark('tell',{counts:j.counts});
+    }catch(err){ $('tell-msg').innerHTML=`<span class="err">${esc(err.message)}</span>`; }
+    $('tell-go').disabled=false;
+  });
+  $('ics-go').addEventListener('click',async()=>{
+    const url=$('ics-url').value.trim(); if(!url)return;
+    $('ics-go').disabled=true; $('ics-msg').innerHTML='<span class="spin"></span> Reading your calendar…';
+    try{ const j=await post('/t-api/ics',{url}); $('ics-msg').innerHTML=`<span class="ok">Added ${j.events} meeting${j.events===1?'':'s'} from the next week.</span> <a href="/#home" style="color:inherit">See it on Meridian →</a>`; $('ics-url').value=''; mark('ics',{events:j.events}); }
+    catch(err){ $('ics-msg').innerHTML=`<span class="err">${esc(err.message)}</span>`; }
+    $('ics-go').disabled=false;
+  });
+  $('reset').addEventListener('click',async()=>{ if(!confirm('Take out everything you added and go back to Sam’s day?'))return; try{ await post('/t-api/reset'); await post('/t-api/world',{world:'sam'}); location.reload(); }catch(err){ alert(err.message); } });
+  $('forget').addEventListener('click',async()=>{ if(!confirm('Delete your test copy, your recording and your answers? This can’t be undone.'))return; try{ await post('/t-api/forget'); try{Object.keys(localStorage).filter(k=>k.indexOf('meridian.')===0).forEach(k=>localStorage.removeItem(k));sessionStorage.clear();}catch{} location.href='/welcome'; }catch(err){ alert(err.message); } });
+})();
+</script>
+</body>
+</html>

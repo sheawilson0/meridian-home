@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Meridian · Welcome</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,1,400;9..144,1,500&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="/tester/pages.css">
+<!--BOOT-->
+</head>
+<body class="welcome">
+<main class="wrap">
+  <header class="brand"><img src="/dashboard-icon.svg" alt="" width="28" height="28"><span>Meridian</span><em>test copy</em></header>
+
+  <h1 id="hi">Hi</h1>
+  <p class="lede">Thanks for trying Meridian. It’s a dashboard for your day and your AI agents: your meetings, what people have asked you for, your to-dos, and what each agent is up to, all in one place.</p>
+
+  <section class="card">
+    <h2>What this is</h2>
+    <ul class="points">
+      <li id="world-line"><b>A made-up working day.</b> It belongs to Sam, a designer at a small studio who works with a few AI agents. Imagine it’s yours. Later you can bring in some of your own things too.</li>
+      <li><b>Nothing here touches anything real.</b> No emails or messages get sent. The agents are pretend: hand one a job and it takes about a minute.</li>
+      <li id="mode-line"><b>About 20 minutes.</b> Owner will talk you through it. Say what you’re thinking as you go, even “I don’t know what this is”. There are no wrong answers: it’s Meridian being tested, not you.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What gets recorded</h2>
+    <ul class="points">
+      <li>With your OK, this page records where you click and scroll and what you type into it, so Owner can replay it afterwards and see what was clear and what wasn’t. It doesn’t record your camera, your microphone, other tabs or anything outside this page.</li>
+      <li id="ai-line">If you type or paste your own things into “Make it yours”, Claude (Anthropic’s AI) sorts them into the dashboard. They stay in your test copy on Owner’s computer.</li>
+      <li>Your recording and answers are only for Owner’s final-year university project, and you won’t be named in anything written about it. You can stop whenever you like, and “Delete everything I did” removes it all.</li>
+    </ul>
+  </section>
+
+  <form id="consent" class="consent">
+    <label class="check"><input type="checkbox" id="c-ok" required><span>I’ve read this and I’m happy to take part.</span></label>
+    <label class="check"><input type="checkbox" id="c-rec" checked><span>Record my clicks and typing on this page.</span></label>
+    <div class="row">
+      <button type="submit" class="btn primary" id="go">Start</button>
+      <span class="hint" id="msg"></span>
+    </div>
+  </form>
+
+  <p class="small">Changed your mind? <button type="button" class="linkish" id="forget">Delete everything I did</button></p>
+</main>
+<script>
+(function(){
+  var T=window.MERIDIAN_TESTER||{};
+  var $=function(id){ return document.getElementById(id); };
+  $('hi').textContent='Hi'+(T.name?', '+T.name:'');   // the full stop is the red one in the CSS
+  if(T.mode==='self')$('mode-line').innerHTML='<b>About 10 minutes, at your own pace.</b> A card in the corner gives you a few things to try, then there are a few questions at the end. If something is confusing, that’s exactly what’s useful to know: the card has a box to say so.';
+  if(T.ai===false)$('ai-line').remove();
+  if(T.consent){ $('c-ok').checked=true; $('c-rec').checked=!!T.consent.record; $('go').textContent='Carry on'; }
+  async function post(p,b){ var r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{}),credentials:'same-origin'}); var j=await r.json().catch(function(){return {};}); if(!r.ok||j.ok===false)throw new Error(j.error||'Something went wrong'); return j; }
+  $('consent').addEventListener('submit',async function(e){ e.preventDefault(); if(!$('c-ok').checked){ $('msg').textContent='Tick the first box to carry on.'; return; }
+    $('go').disabled=true; try{ await post('/t-api/consent',{record:$('c-rec').checked}); location.href='/#home'; }catch(err){ $('msg').textContent=err.message; $('go').disabled=false; } });
+  $('forget').addEventListener('click',async function(){ if(!confirm('Delete your test copy, your recording and your answers? This can’t be undone.'))return;
+    try{ await post('/t-api/forget'); try{Object.keys(localStorage).filter(function(k){return k.indexOf('meridian.')===0;}).forEach(function(k){localStorage.removeItem(k);});sessionStorage.clear();}catch(e){} document.querySelector('main').innerHTML='<header class="brand"><img src="/dashboard-icon.svg" alt="" width="28" height="28"><span>Meridian</span></header><h1>Done</h1><p class="lede">Everything from your test has been deleted. Thanks anyway.</p>'; }catch(err){ alert(err.message); } });
+})();
+</script>
+</body>
+</html>

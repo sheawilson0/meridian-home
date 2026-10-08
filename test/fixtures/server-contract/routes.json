@@ -1,0 +1,2387 @@
+{
+  "/api/state": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "ai": {
+        "liveCount": "number",
+        "sessions": {
+          "array": []
+        },
+        "todayCount": "number"
+      },
+      "at": "number",
+      "board": {
+        "cards": {
+          "array": []
+        }
+      },
+      "brain": {},
+      "briefFeedback": {
+        "completed": {
+          "array": []
+        },
+        "dismissed": {
+          "array": []
+        },
+        "items": {
+          "array": []
+        }
+      },
+      "briefIntake": {
+        "briefIntake": {
+          "items": {
+            "array": [
+              {
+                "actionable": "boolean",
+                "avatarUrl": "null",
+                "confidence": "string",
+                "from": "string",
+                "id": "string",
+                "priority": "string",
+                "projectId": "string",
+                "queuedAt": "string",
+                "receivedAt": "string",
+                "request": "string",
+                "respondedAt": "null",
+                "source": "string",
+                "status": "string",
+                "summary": "string",
+                "title": "string",
+                "url": "string"
+              }
+            ]
+          },
+          "pending": "number",
+          "updatedAt": "string",
+          "window": {
+            "from": "string",
+            "sources": {
+              "array": [
+                "string"
+              ]
+            },
+            "to": "string"
+          }
+        },
+        "projects": {
+          "projects": {
+            "array": [
+              {
+                "brief": "boolean",
+                "created": "string",
+                "delegate": "boolean",
+                "id": "string",
+                "note": "string",
+                "priority": "string",
+                "source": "string",
+                "sourceFrom": "string",
+                "sourceId": "string",
+                "sourceReceivedAt": "string",
+                "sourceUrl": "string",
+                "status": "string",
+                "title": "string",
+                "updated": "string"
+              }
+            ]
+          },
+          "version": "number"
+        }
+      },
+      "calendar": {
+        "configured": "boolean",
+        "events": {
+          "array": []
+        }
+      },
+      "capabilities": {
+        "previews": "boolean"
+      },
+      "captureTo": "string",
+      "deadlines": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "done": "boolean",
+            "due": "string",
+            "id": "string",
+            "note": "string",
+            "title": "string",
+            "track": "string",
+            "updated": "string"
+          }
+        ]
+      },
+      "defaultModel": "string",
+      "delegations": {
+        "runs": {
+          "array": []
+        }
+      },
+      "drift": {
+        "strays": {
+          "array": []
+        }
+      },
+      "engines": {
+        "array": [
+          "string"
+        ]
+      },
+      "fleet": {
+        "agents": {
+          "array": []
+        },
+        "services": {
+          "array": []
+        },
+        "sites": {
+          "array": []
+        }
+      },
+      "git": {
+        "repos": {
+          "array": []
+        }
+      },
+      "github": {
+        "at": "null",
+        "error": "null",
+        "failing": {
+          "array": []
+        },
+        "merged": {
+          "array": []
+        },
+        "prs": {
+          "array": []
+        },
+        "reviews": {
+          "array": []
+        },
+        "user": "null"
+      },
+      "heartHealth": {
+        "configured": "boolean",
+        "dashboardUrl": "string",
+        "error": "string",
+        "stale": "boolean"
+      },
+      "invites": {
+        "array": []
+      },
+      "journalToday": {},
+      "exampleappFeedback": {
+        "items": {
+          "array": []
+        },
+        "lastRun": "null",
+        "updatedAt": "null",
+        "working": "number"
+      },
+      "ledger": {
+        "entries": {
+          "array": []
+        },
+        "latest": "null",
+        "now": "string"
+      },
+      "links": {
+        "categories": {
+          "array": [
+            "string"
+          ]
+        },
+        "links": {
+          "array": [
+            {
+              "category": "string",
+              "check": "boolean",
+              "created": "string",
+              "health": "null",
+              "id": "string",
+              "kind": "string",
+              "lastOpened": "string",
+              "note": "string",
+              "opens": "number",
+              "pinOrder": "number",
+              "pinned": "boolean",
+              "preview": "boolean",
+              "tags": {
+                "array": []
+              },
+              "title": "string",
+              "updated": "string",
+              "url": "string"
+            },
+            {
+              "category": "string",
+              "check": "boolean",
+              "created": "string",
+              "health": {
+                "at": "number",
+                "ms": "number",
+                "status": "number",
+                "up": "boolean"
+              },
+              "id": "string",
+              "kind": "string",
+              "lastOpened": "string",
+              "note": "string",
+              "opens": "number",
+              "pinOrder": "number",
+              "pinned": "boolean",
+              "preview": "boolean",
+              "tags": {
+                "array": []
+              },
+              "title": "string",
+              "updated": "string",
+              "url": "string"
+            }
+          ]
+        },
+        "version": "number"
+      },
+      "local": {
+        "servers": {
+          "array": []
+        }
+      },
+      "location": "string",
+      "machine": "string",
+      "meetings": {
+        "items": {
+          "array": []
+        }
+      },
+      "notify": "null",
+      "notifyHistory": {
+        "array": []
+      },
+      "nudges": {
+        "enabled": "boolean",
+        "minutes": {
+          "array": [
+            "number"
+          ]
+        },
+        "push": "boolean",
+        "skip": {
+          "array": [
+            "string"
+          ]
+        }
+      },
+      "outlookMeetings": {
+        "array": []
+      },
+      "projects": {
+        "projects": {
+          "array": []
+        },
+        "version": "number"
+      },
+      "pulse": {
+        "events": {
+          "array": []
+        }
+      },
+      "campaignSnapshot": "null",
+      "sources": {
+        "ai": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "board": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "brain": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "briefFeedback": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "calendar": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "delegations": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "drift": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "fleet": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "git": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "github": {
+          "durationMs": "null",
+          "error": "null",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "heartHealth": {
+          "durationMs": "null",
+          "error": "null",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "exampleappFeedback": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "ledger": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "links": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "localServers": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "meetings": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "notifyHistory": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "projects": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "pulse": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "savedDeadlines": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "campaignSnapshot": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "syncedIntake": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "system": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "tailnet": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "threads": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "todoRank": {
+          "durationMs": "null",
+          "error": "null",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        },
+        "todos": {
+          "durationMs": "number",
+          "error": "null",
+          "lastAttempt": "number",
+          "lastSuccess": "number",
+          "stale": "boolean"
+        },
+        "workBrief": {
+          "durationMs": "number",
+          "error": "string",
+          "lastAttempt": "number",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        }
+      },
+      "system": {},
+      "tailnet": {
+        "host": "string",
+        "ip": "null",
+        "servePort": "number"
+      },
+      "threads": {
+        "tasks": {
+          "array": []
+        }
+      },
+      "todoRank": {
+        "at": "null",
+        "error": "null",
+        "items": {
+          "array": []
+        },
+        "running": "boolean"
+      },
+      "todos": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "null",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          },
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "string",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          }
+        ]
+      },
+      "vaultJournalDir": "null",
+      "workBrief": "null"
+    }
+  },
+  "/api/state?view=phone": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "ai": {
+        "sessions": {
+          "array": []
+        }
+      },
+      "at": "number",
+      "briefFeedback": {
+        "completed": {
+          "array": []
+        }
+      },
+      "briefIntake": {
+        "items": {
+          "array": []
+        }
+      },
+      "calendar": {
+        "events": {
+          "array": []
+        }
+      },
+      "deadlines": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "done": "boolean",
+            "due": "string",
+            "id": "string",
+            "note": "string",
+            "title": "string",
+            "track": "string",
+            "updated": "string"
+          }
+        ]
+      },
+      "delegations": {
+        "runs": {
+          "array": []
+        }
+      },
+      "github": {
+        "reviews": {
+          "array": []
+        }
+      },
+      "invites": {
+        "array": []
+      },
+      "journalToday": {},
+      "ledger": {
+        "now": "string"
+      },
+      "location": "string",
+      "notify": "null",
+      "notifyHistory": {
+        "array": []
+      },
+      "nudges": {
+        "enabled": "boolean",
+        "minutes": {
+          "array": [
+            "number"
+          ]
+        },
+        "push": "boolean",
+        "skip": {
+          "array": [
+            "string"
+          ]
+        }
+      },
+      "projects": {
+        "projects": {
+          "array": []
+        }
+      },
+      "tailnet": {
+        "host": "string",
+        "ip": "null",
+        "servePort": "number"
+      },
+      "todos": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "null",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          },
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "string",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          }
+        ]
+      }
+    }
+  },
+  "/api/links": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "categories": {
+        "array": [
+          "string"
+        ]
+      },
+      "links": {
+        "array": [
+          {
+            "category": "string",
+            "check": "boolean",
+            "created": "string",
+            "health": "null",
+            "id": "string",
+            "kind": "string",
+            "lastOpened": "string",
+            "note": "string",
+            "opens": "number",
+            "pinOrder": "number",
+            "pinned": "boolean",
+            "preview": "boolean",
+            "tags": {
+              "array": []
+            },
+            "title": "string",
+            "updated": "string",
+            "url": "string"
+          },
+          {
+            "category": "string",
+            "check": "boolean",
+            "created": "string",
+            "health": {
+              "at": "number",
+              "ms": "number",
+              "status": "number",
+              "up": "boolean"
+            },
+            "id": "string",
+            "kind": "string",
+            "lastOpened": "string",
+            "note": "string",
+            "opens": "number",
+            "pinOrder": "number",
+            "pinned": "boolean",
+            "preview": "boolean",
+            "tags": {
+              "array": []
+            },
+            "title": "string",
+            "updated": "string",
+            "url": "string"
+          }
+        ]
+      },
+      "version": "number"
+    }
+  },
+  "/api/stash": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "chips": {
+        "array": []
+      },
+      "counts": {
+        "all": "number",
+        "colour": "number",
+        "link": "number",
+        "note": "number",
+        "quote": "number"
+      },
+      "fresh": "number",
+      "items": {
+        "array": [
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "h": "number",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "palette": {
+              "array": [
+                {
+                  "hex": "string",
+                  "name": "string",
+                  "weight": "number"
+                }
+              ]
+            },
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "th": "number",
+            "thumb": "boolean",
+            "title": "string",
+            "tw": "number",
+            "updated": "number",
+            "url": "string",
+            "w": "number"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "hex": "string",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": {
+              "app": "string",
+              "title": "string",
+              "url": "string"
+            },
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          }
+        ]
+      },
+      "ok": "boolean",
+      "seenAt": "number",
+      "spaces": {
+        "array": [
+          {
+            "n": "number",
+            "name": "string"
+          }
+        ]
+      },
+      "total": "number"
+    }
+  },
+  "/api/stash?q=northwind": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "chips": {
+        "array": []
+      },
+      "counts": {
+        "all": "number",
+        "colour": "number",
+        "link": "number",
+        "note": "number",
+        "quote": "number"
+      },
+      "fresh": "number",
+      "items": {
+        "array": [
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "h": "number",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "palette": {
+              "array": [
+                {
+                  "hex": "string",
+                  "name": "string",
+                  "weight": "number"
+                }
+              ]
+            },
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "th": "number",
+            "thumb": "boolean",
+            "title": "string",
+            "tw": "number",
+            "updated": "number",
+            "url": "string",
+            "w": "number"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "hex": "string",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          }
+        ]
+      },
+      "ok": "boolean",
+      "seenAt": "number",
+      "spaces": {
+        "array": [
+          {
+            "n": "number",
+            "name": "string"
+          }
+        ]
+      },
+      "total": "number"
+    }
+  },
+  "/api/stash/demo0002": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "item": {
+        "created": "number",
+        "domain": "string",
+        "from": "string",
+        "hasText": "boolean",
+        "id": "string",
+        "kind": "string",
+        "labels": {
+          "array": []
+        },
+        "note": "string",
+        "page": "null",
+        "pinned": "boolean",
+        "similar": "boolean",
+        "source": "string",
+        "spaces": {
+          "array": [
+            "string"
+          ]
+        },
+        "text": "string",
+        "title": "string",
+        "updated": "number",
+        "url": "string"
+      },
+      "ok": "boolean"
+    }
+  },
+  "/api/drafts": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "drafts": {
+        "array": [
+          {
+            "approvedRev": "null",
+            "archived": "boolean",
+            "bcc": "string",
+            "body": "string",
+            "by": "string",
+            "cc": "string",
+            "created": "number",
+            "from": "string",
+            "fromWhy": "string",
+            "id": "string",
+            "kind": "string",
+            "named": "boolean",
+            "rev": "number",
+            "space": "string",
+            "status": "string",
+            "subject": "string",
+            "title": "string",
+            "to": "string",
+            "updated": "number",
+            "where": "string"
+          }
+        ]
+      }
+    }
+  },
+  "/api/drafts/aabbcc001122": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "draft": {
+        "approvedRev": "null",
+        "archived": "boolean",
+        "bcc": "string",
+        "body": "string",
+        "by": "string",
+        "cc": "string",
+        "created": "number",
+        "from": "string",
+        "fromWhy": "string",
+        "id": "string",
+        "kind": "string",
+        "named": "boolean",
+        "rev": "number",
+        "space": "string",
+        "status": "string",
+        "subject": "string",
+        "title": "string",
+        "to": "string",
+        "updated": "number",
+        "where": "string"
+      }
+    }
+  },
+  "/api/drafts/aabbcc001122/history": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "history": {
+        "array": []
+      }
+    }
+  },
+  "/api/almanac": {
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "shape": {
+      "date": "string",
+      "generatedAt": "string",
+      "items": {
+        "article": {
+          "error": "string"
+        },
+        "colours": {
+          "error": "string"
+        },
+        "earth": {
+          "error": "string"
+        },
+        "earthView": {
+          "error": "string"
+        },
+        "moon": {
+          "age": "number",
+          "computedAt": "string",
+          "credit": "string",
+          "illumination": "number",
+          "nextFull": {
+            "at": "string",
+            "date": "string",
+            "inDays": "number"
+          },
+          "nextNew": {
+            "at": "string",
+            "date": "string",
+            "inDays": "number"
+          },
+          "phase": "string",
+          "waxing": "boolean"
+        },
+        "onThisDay": {
+          "error": "string"
+        },
+        "picture": {
+          "error": "string"
+        },
+        "poem": {
+          "error": "string"
+        },
+        "sky": {
+          "error": "string"
+        },
+        "typeface": {
+          "error": "string"
+        }
+      }
+    }
+  },
+  "/api/agent": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "about": "string",
+      "agentsWorking": {
+        "array": []
+      },
+      "boardNeedsOwner": {
+        "array": []
+      },
+      "calendar": {
+        "array": []
+      },
+      "deadlines": {
+        "array": [
+          {
+            "area": "string",
+            "due": "string",
+            "note": "string",
+            "title": "string"
+          }
+        ]
+      },
+      "drafts": {
+        "array": [
+          {
+            "id": "string",
+            "kind": "string",
+            "status": "string",
+            "title": "string",
+            "to": "string"
+          }
+        ]
+      },
+      "howToHelp": {
+        "draft": "string",
+        "open": "string",
+        "pages": {
+          "brief": "string",
+          "dashboard": "string"
+        },
+        "todo": "string"
+      },
+      "invitesWaitingForReply": {
+        "array": []
+      },
+      "location": "null",
+      "problems": {
+        "array": []
+      },
+      "sources": {
+        "calendar": {
+          "durationMs": "null",
+          "error": "string",
+          "lastAttempt": "null",
+          "lastSuccess": "null",
+          "stale": "boolean"
+        }
+      },
+      "todos": {
+        "array": [
+          {
+            "area": "string",
+            "priority": "string",
+            "title": "string"
+          }
+        ]
+      },
+      "waitingOnOwner": {
+        "array": []
+      },
+      "workUpdates": {
+        "array": []
+      }
+    }
+  },
+  "/agent.md": {
+    "status": 200,
+    "contentType": "text/markdown; charset=utf-8",
+    "shape": "string"
+  },
+  "/api/command/prefs": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "ok": "boolean",
+      "prefs": {
+        "look": {
+          "hero": "string",
+          "surface": "string",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "/api/widget": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "agents": {
+        "first": "string",
+        "working": "number"
+      },
+      "at": "number",
+      "deadline": {
+        "days": "number",
+        "due": "string",
+        "title": "string"
+      },
+      "later": {
+        "array": []
+      },
+      "needs": {
+        "count": "number",
+        "first": "null",
+        "items": {
+          "array": []
+        }
+      },
+      "next": "null",
+      "todos": {
+        "open": "number",
+        "top": {
+          "array": [
+            "string"
+          ]
+        }
+      }
+    }
+  },
+  "/api/demo/state": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "ai": {
+        "liveCount": "number",
+        "sessions": {
+          "array": [
+            {
+              "did": "string",
+              "last": "number",
+              "live": "boolean",
+              "project": "string",
+              "prompt": "string",
+              "started": "number",
+              "summary": "null",
+              "tool": "string"
+            }
+          ]
+        },
+        "todayCount": "number"
+      },
+      "at": "number",
+      "board": {
+        "cards": {
+          "array": [
+            {
+              "agentReady": "boolean",
+              "file": "string",
+              "id": "string",
+              "link": "null",
+              "needsYou": "boolean",
+              "status": "string",
+              "title": "string",
+              "updated": "string"
+            }
+          ]
+        }
+      },
+      "brain": {
+        "links": "number",
+        "nodes": "number",
+        "realms": {
+          "array": [
+            {
+              "count": "number",
+              "name": "string"
+            }
+          ]
+        }
+      },
+      "briefFeedback": {
+        "completed": {
+          "array": []
+        },
+        "rejected": {
+          "array": []
+        },
+        "skipped": {}
+      },
+      "briefIntake": {
+        "items": {
+          "array": [
+            {
+              "actionable": "boolean",
+              "avatarUrl": "null",
+              "confidence": "string",
+              "from": "string",
+              "id": "string",
+              "priority": "string",
+              "projectId": "string",
+              "queuedAt": "string",
+              "receivedAt": "string",
+              "request": "string",
+              "respondedAt": "null",
+              "source": "string",
+              "status": "string",
+              "summary": "string",
+              "title": "string",
+              "url": "string"
+            }
+          ]
+        },
+        "pending": "number",
+        "updatedAt": "string",
+        "window": {
+          "from": "string",
+          "sources": {
+            "array": [
+              "string"
+            ]
+          },
+          "to": "string"
+        }
+      },
+      "calendar": {
+        "at": "number",
+        "calendars": {
+          "array": [
+            {
+              "color": "string",
+              "hidden": "boolean",
+              "id": "string",
+              "label": "string",
+              "ok": "boolean"
+            }
+          ]
+        },
+        "configured": "boolean",
+        "events": {
+          "array": [
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "estimated": "boolean",
+              "id": "string",
+              "joinUrl": "null",
+              "kind": "string",
+              "location": "string",
+              "organizer": "string",
+              "recurring": "boolean",
+              "response": "null",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            },
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "id": "string",
+              "joinUrl": "null",
+              "location": "null",
+              "organizer": "null",
+              "recurring": "boolean",
+              "response": "null",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            },
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "id": "string",
+              "joinUrl": "null",
+              "location": "string",
+              "organizer": "null",
+              "recurring": "boolean",
+              "response": "null",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            },
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "id": "string",
+              "joinUrl": "string",
+              "location": "null",
+              "organizer": "string",
+              "recurring": "boolean",
+              "response": "string",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            },
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "id": "string",
+              "joinUrl": "string",
+              "location": "string",
+              "organizer": "null",
+              "recurring": "boolean",
+              "response": "null",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            },
+            {
+              "allDay": "boolean",
+              "busyStatus": "string",
+              "cal": "string",
+              "calendar": "string",
+              "color": "string",
+              "end": "number",
+              "id": "string",
+              "joinUrl": "string",
+              "location": "string",
+              "organizer": "string",
+              "recurring": "boolean",
+              "response": "null",
+              "title": "string",
+              "ts": "number",
+              "uid": "string"
+            }
+          ]
+        }
+      },
+      "capabilities": {
+        "previews": "boolean"
+      },
+      "deadlines": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "done": "boolean",
+            "due": "string",
+            "id": "string",
+            "note": "string",
+            "title": "string",
+            "track": "string",
+            "updated": "string"
+          }
+        ]
+      },
+      "defaultModel": "string",
+      "delegations": {
+        "runs": {
+          "array": [
+            {
+              "card": "null",
+              "changes": "null",
+              "effort": "null",
+              "error": "null",
+              "files": {
+                "array": [
+                  "string"
+                ]
+              },
+              "finished": "number",
+              "id": "string",
+              "kind": "string",
+              "model": "string",
+              "projectId": "null",
+              "requestFile": "null",
+              "source": "string",
+              "started": "number",
+              "status": "string",
+              "title": "string",
+              "todoId": "null",
+              "undoable": "boolean",
+              "undoneAt": "null"
+            },
+            {
+              "card": "null",
+              "changes": "null",
+              "effort": "null",
+              "error": "null",
+              "files": {
+                "array": []
+              },
+              "finished": "null",
+              "id": "string",
+              "kind": "string",
+              "model": "string",
+              "projectId": "null",
+              "requestFile": "null",
+              "source": "string",
+              "started": "number",
+              "status": "string",
+              "title": "string",
+              "todoId": "null",
+              "undoable": "boolean",
+              "undoneAt": "null"
+            },
+            {
+              "card": "null",
+              "changes": {
+                "files": {
+                  "array": [
+                    {
+                      "added": "number",
+                      "path": "string",
+                      "removed": "number"
+                    }
+                  ]
+                }
+              },
+              "effort": "null",
+              "error": "null",
+              "files": {
+                "array": []
+              },
+              "finished": "number",
+              "id": "string",
+              "kind": "string",
+              "model": "string",
+              "projectId": "null",
+              "requestFile": "null",
+              "source": "string",
+              "started": "number",
+              "status": "string",
+              "title": "string",
+              "todoId": "null",
+              "undoable": "boolean",
+              "undoneAt": "null"
+            }
+          ]
+        }
+      },
+      "demo": "boolean",
+      "drift": {
+        "strays": {
+          "array": []
+        }
+      },
+      "engines": {
+        "array": [
+          "string"
+        ]
+      },
+      "fleet": {
+        "agents": {
+          "array": [
+            {
+              "exitStatus": "number",
+              "label": "string",
+              "pid": "number"
+            }
+          ]
+        },
+        "down": "number",
+        "paused": "number",
+        "services": {
+          "array": [
+            {
+              "history": {
+                "array": [
+                  "number"
+                ]
+              },
+              "kind": "string",
+              "label": "null",
+              "matchedBy": "null",
+              "ms": "number",
+              "name": "string",
+              "pausable": "boolean",
+              "pauseMode": "string",
+              "paused": "boolean",
+              "rawUp": "boolean",
+              "status": "number",
+              "up": "boolean",
+              "url": "string"
+            },
+            {
+              "history": {
+                "array": []
+              },
+              "kind": "string",
+              "label": "null",
+              "matchedBy": "null",
+              "ms": "null",
+              "name": "string",
+              "pausable": "boolean",
+              "pauseMode": "string",
+              "paused": "boolean",
+              "rawUp": "null",
+              "status": "null",
+              "up": "boolean",
+              "url": "string"
+            }
+          ]
+        },
+        "sites": {
+          "array": [
+            {
+              "history": {
+                "array": [
+                  "number"
+                ]
+              },
+              "kind": "string",
+              "label": "null",
+              "matchedBy": "null",
+              "ms": "number",
+              "name": "string",
+              "pausable": "boolean",
+              "pauseMode": "string",
+              "paused": "boolean",
+              "rawUp": "boolean",
+              "status": "number",
+              "up": "boolean",
+              "url": "string"
+            }
+          ]
+        }
+      },
+      "git": {
+        "repos": {
+          "array": [
+            {
+              "ahead": "number",
+              "behind": "number",
+              "branch": "string",
+              "commitTs": "number",
+              "dirty": "number",
+              "name": "string",
+              "path": "string",
+              "subject": "string"
+            }
+          ]
+        }
+      },
+      "github": {
+        "at": "string",
+        "error": "null",
+        "failing": {
+          "array": []
+        },
+        "merged": {
+          "array": [
+            {
+              "author": "string",
+              "checks": "string",
+              "draft": "boolean",
+              "mergedAt": "string",
+              "number": "number",
+              "repo": "string",
+              "reviewDecision": "null",
+              "state": "string",
+              "title": "string",
+              "updatedAt": "string",
+              "url": "string"
+            }
+          ]
+        },
+        "prs": {
+          "array": [
+            {
+              "author": "string",
+              "checks": "string",
+              "draft": "boolean",
+              "mergedAt": "null",
+              "number": "number",
+              "repo": "string",
+              "reviewDecision": "null",
+              "state": "string",
+              "title": "string",
+              "updatedAt": "string",
+              "url": "string"
+            }
+          ]
+        },
+        "repos": "number",
+        "reviews": {
+          "array": [
+            {
+              "author": "string",
+              "checks": "string",
+              "draft": "boolean",
+              "mergedAt": "null",
+              "number": "number",
+              "repo": "string",
+              "reviewDecision": "null",
+              "state": "string",
+              "title": "string",
+              "updatedAt": "string",
+              "url": "string"
+            }
+          ]
+        },
+        "user": "string"
+      },
+      "invites": {
+        "array": [
+          {
+            "cal": "string",
+            "calendarId": "string",
+            "end": "string",
+            "id": "string",
+            "inCalendar": "boolean",
+            "joinUrl": "string",
+            "organizer": "string",
+            "response": "string",
+            "source": "string",
+            "start": "string",
+            "title": "string",
+            "url": "string"
+          }
+        ]
+      },
+      "journalToday": {
+        "date": "string",
+        "delegations": {
+          "array": []
+        },
+        "items": {
+          "array": [
+            {
+              "asks": {
+                "array": [
+                  "string"
+                ]
+              },
+              "commits": {
+                "array": []
+              },
+              "did": "string",
+              "first": "number",
+              "last": "number",
+              "minutes": "number",
+              "name": "string",
+              "sessions": {
+                "claude": "number",
+                "codex": "number"
+              },
+              "track": "string"
+            },
+            {
+              "asks": {
+                "array": [
+                  "string"
+                ]
+              },
+              "commits": {
+                "array": [
+                  {
+                    "subject": "string",
+                    "t": "number"
+                  }
+                ]
+              },
+              "did": "string",
+              "first": "number",
+              "last": "number",
+              "minutes": "number",
+              "name": "string",
+              "sessions": {
+                "claude": "number",
+                "codex": "number"
+              },
+              "track": "string"
+            }
+          ]
+        }
+      },
+      "ledger": {
+        "entries": {
+          "array": [
+            {
+              "date": "string",
+              "name": "string"
+            }
+          ]
+        },
+        "latest": {
+          "date": "string",
+          "excerpt": "string",
+          "name": "string"
+        },
+        "now": "string",
+        "schedule": "string"
+      },
+      "links": {
+        "categories": {
+          "array": [
+            "string"
+          ]
+        },
+        "links": {
+          "array": [
+            {
+              "category": "string",
+              "check": "boolean",
+              "created": "string",
+              "health": "null",
+              "id": "string",
+              "kind": "string",
+              "lastOpened": "string",
+              "note": "string",
+              "opens": "number",
+              "pinOrder": "number",
+              "pinned": "boolean",
+              "preview": "boolean",
+              "tags": {
+                "array": []
+              },
+              "title": "string",
+              "updated": "string",
+              "url": "string"
+            },
+            {
+              "category": "string",
+              "check": "boolean",
+              "created": "string",
+              "health": {
+                "at": "number",
+                "ms": "number",
+                "status": "number",
+                "up": "boolean"
+              },
+              "id": "string",
+              "kind": "string",
+              "lastOpened": "string",
+              "note": "string",
+              "opens": "number",
+              "pinOrder": "number",
+              "pinned": "boolean",
+              "preview": "boolean",
+              "tags": {
+                "array": []
+              },
+              "title": "string",
+              "updated": "string",
+              "url": "string"
+            }
+          ]
+        }
+      },
+      "local": {
+        "servers": {
+          "array": [
+            {
+              "category": "string",
+              "command": "string",
+              "cwd": "string",
+              "ignored": "boolean",
+              "localUrl": "string",
+              "loopbackOnly": "boolean",
+              "ms": "number",
+              "pid": "number",
+              "port": "number",
+              "project": "string",
+              "reachable": "string",
+              "shareHttpsPort": "null",
+              "shareOwned": "boolean",
+              "shareUrl": "null",
+              "status": "number",
+              "tailIpUrl": "string",
+              "tailUrl": "string",
+              "title": "string"
+            },
+            {
+              "category": "string",
+              "command": "string",
+              "cwd": "string",
+              "ignored": "boolean",
+              "localUrl": "string",
+              "loopbackOnly": "boolean",
+              "ms": "number",
+              "pid": "number",
+              "port": "number",
+              "project": "string",
+              "reachable": "string",
+              "shareHttpsPort": "number",
+              "shareOwned": "boolean",
+              "shareUrl": "string",
+              "status": "number",
+              "tailIpUrl": "string",
+              "tailUrl": "string",
+              "title": "string"
+            }
+          ]
+        }
+      },
+      "location": {
+        "lat": "number",
+        "lon": "number",
+        "name": "string"
+      },
+      "machine": "string",
+      "meetings": {
+        "meetings": {
+          "array": []
+        }
+      },
+      "notify": {
+        "enabled": "boolean",
+        "events": {
+          "array": [
+            "string"
+          ]
+        },
+        "provider": "string",
+        "topic": "string",
+        "url": "string"
+      },
+      "notifyHistory": {
+        "array": [
+          {
+            "event": "string",
+            "message": "string",
+            "ok": "boolean",
+            "status": "number",
+            "time": "number",
+            "title": "string"
+          }
+        ]
+      },
+      "nudges": {
+        "enabled": "boolean",
+        "minutes": {
+          "array": [
+            "number"
+          ]
+        },
+        "push": "boolean",
+        "skip": {
+          "array": [
+            "string"
+          ]
+        }
+      },
+      "outlookMeetings": {
+        "array": []
+      },
+      "projects": {
+        "projects": {
+          "array": [
+            {
+              "brief": "boolean",
+              "created": "string",
+              "delegate": "boolean",
+              "id": "string",
+              "note": "string",
+              "priority": "string",
+              "source": "string",
+              "sourceFrom": "string",
+              "sourceId": "string",
+              "sourceReceivedAt": "string",
+              "sourceUrl": "string",
+              "status": "string",
+              "title": "string",
+              "updated": "string"
+            }
+          ]
+        },
+        "version": "number"
+      },
+      "pulse": {
+        "events": {
+          "array": [
+            {
+              "kind": "string",
+              "label": "string",
+              "t": "number"
+            }
+          ]
+        }
+      },
+      "system": {
+        "diskFreeGb": "number",
+        "host": "string",
+        "load": "string",
+        "uptimeH": "number"
+      },
+      "tailnet": {
+        "host": "string",
+        "ip": "string",
+        "servePort": "number"
+      },
+      "threads": {
+        "tasks": {
+          "array": []
+        },
+        "up": "boolean"
+      },
+      "todos": {
+        "array": [
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "null",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          },
+          {
+            "area": "string",
+            "created": "string",
+            "delegation": "null",
+            "done": "boolean",
+            "doneAt": "string",
+            "id": "string",
+            "note": "string",
+            "order": "number",
+            "priority": "string",
+            "title": "string",
+            "updated": "string"
+          }
+        ]
+      },
+      "vaultJournalDir": "string",
+      "workBrief": "null"
+    }
+  },
+  "/api/demo/links": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "categories": {
+        "array": [
+          "string"
+        ]
+      },
+      "links": {
+        "array": [
+          {
+            "category": "string",
+            "check": "boolean",
+            "created": "string",
+            "health": "null",
+            "id": "string",
+            "kind": "string",
+            "lastOpened": "string",
+            "note": "string",
+            "opens": "number",
+            "pinOrder": "number",
+            "pinned": "boolean",
+            "preview": "boolean",
+            "tags": {
+              "array": []
+            },
+            "title": "string",
+            "updated": "string",
+            "url": "string"
+          },
+          {
+            "category": "string",
+            "check": "boolean",
+            "created": "string",
+            "health": {
+              "at": "number",
+              "ms": "number",
+              "status": "number",
+              "up": "boolean"
+            },
+            "id": "string",
+            "kind": "string",
+            "lastOpened": "string",
+            "note": "string",
+            "opens": "number",
+            "pinOrder": "number",
+            "pinned": "boolean",
+            "preview": "boolean",
+            "tags": {
+              "array": []
+            },
+            "title": "string",
+            "updated": "string",
+            "url": "string"
+          }
+        ]
+      }
+    }
+  },
+  "/api/demo/stash": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "chips": {
+        "array": []
+      },
+      "counts": {
+        "all": "number",
+        "colour": "number",
+        "file": "number",
+        "image": "number",
+        "link": "number",
+        "note": "number",
+        "quote": "number",
+        "screenshot": "number"
+      },
+      "fresh": "number",
+      "items": {
+        "array": [
+          {
+            "bytes": "number",
+            "created": "number",
+            "domain": "string",
+            "file": "string",
+            "from": "string",
+            "h": "number",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": [
+                {
+                  "c": "number",
+                  "id": "string"
+                }
+              ]
+            },
+            "mime": "string",
+            "name": "string",
+            "note": "string",
+            "page": "null",
+            "palette": {
+              "array": [
+                {
+                  "hex": "string",
+                  "name": "string",
+                  "weight": "number"
+                }
+              ]
+            },
+            "pinned": "boolean",
+            "similar": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "th": "number",
+            "thumb": "boolean",
+            "title": "string",
+            "tw": "number",
+            "updated": "number",
+            "url": "string",
+            "w": "number"
+          },
+          {
+            "bytes": "number",
+            "created": "number",
+            "domain": "string",
+            "file": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "mime": "string",
+            "name": "string",
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "thumb": "boolean",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "h": "number",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "palette": {
+              "array": [
+                {
+                  "hex": "string",
+                  "name": "string",
+                  "weight": "number"
+                }
+              ]
+            },
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "th": "number",
+            "thumb": "boolean",
+            "title": "string",
+            "tw": "number",
+            "updated": "number",
+            "url": "string",
+            "w": "number"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "hex": "string",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": "null",
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          },
+          {
+            "created": "number",
+            "domain": "string",
+            "from": "string",
+            "hasText": "boolean",
+            "id": "string",
+            "kind": "string",
+            "labels": {
+              "array": []
+            },
+            "note": "string",
+            "page": {
+              "app": "string",
+              "title": "string",
+              "url": "string"
+            },
+            "pinned": "boolean",
+            "source": "string",
+            "spaces": {
+              "array": [
+                "string"
+              ]
+            },
+            "text": "string",
+            "title": "string",
+            "updated": "number",
+            "url": "string"
+          }
+        ]
+      },
+      "ok": "boolean",
+      "seenAt": "number",
+      "spaces": {
+        "array": [
+          {
+            "n": "number",
+            "name": "string"
+          }
+        ]
+      },
+      "total": "number"
+    }
+  },
+  "/mcp": {
+    "status": 200,
+    "contentType": "application/json",
+    "shape": {
+      "mcp": "string",
+      "name": "string",
+      "tools": {
+        "array": [
+          "string"
+        ]
+      }
+    }
+  }
+}

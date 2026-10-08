@@ -1,0 +1,20 @@
+{
+  "invoices": [
+    {
+      "date": "2026-07-27",
+      "category": "ChatGPT Business",
+      "currency": "GBP",
+      "amount": 10,
+      "reference": "fixture-unverified",
+      "status": "unverified"
+    },
+    {
+      "date": "2026-08-27",
+      "category": "ChatGPT Business",
+      "currency": "GBP",
+      "amount": 0,
+      "reference": "fixture-work",
+      "status": "paid"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en" data-surface="ink">
+<head>
+<script src="/lab-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0d">
+<title>Meridian · Sort your Stash</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<script>
+// Same saved look as the command centre, before first paint.
+try{const p=JSON.parse(localStorage.getItem('meridian.cc.prefs')||'{}');const r=document.documentElement;
+  for(const [k,v] of Object.entries(p.look||{}))if(k!=='grain'&&k!=='tintStrength')r.dataset[k]=(k==='radius'&&v==='round')?'squircle':v;
+  if(p.accent)r.style.setProperty('--accent',p.accent);}catch{}
+</script>
+<link rel="stylesheet" href="/command.css">
+<style>
+/* Swipe to sort (6 Oct 2026): a prototype for Owner to try, not part of the
+   dashboard yet. One thing at a time from his Stash: right keeps it, left
+   deletes it into Stash's 30-day trash. Arrow keys on the Mac, Z to undo.
+   ?lab sorts without saving anything. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--frame);color:var(--ink);display:flex;flex-direction:column;align-items:center;
+  padding:max(14px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));-webkit-user-select:none;user-select:none}
+.top{width:min(460px,100%);display:flex;align-items:center;gap:10px;height:44px;flex:none}
+.top h1{font-family:var(--f-title);font-size:17px;font-weight:600;letter-spacing:var(--title-track);margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top a,.top button{color:var(--dim);background:none;border:0;padding:6px;border-radius:8px;display:grid;place-items:center;cursor:pointer}
+.top a:hover,.top button:hover{color:var(--ink);background:var(--well)}
+.top svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.order{flex:none;width:auto;height:28px;border:0;border-radius:8px;background:var(--well);color:var(--body);font:inherit;font-size:12.5px;padding:0 8px;cursor:pointer}
+.lab{flex:none;white-space:nowrap;font-size:11px;color:var(--accent-text);background:color-mix(in srgb,var(--accent) 16%,transparent);padding:3px 8px;border-radius:6px;font-weight:600;letter-spacing:.02em}
+.bar{width:min(460px,100%);height:3px;border-radius:2px;background:var(--well);flex:none;margin:4px 0 14px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.count{width:min(460px,100%);display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:-8px;margin-bottom:12px;font-variant-numeric:tabular-nums}
+
+.deck{position:relative;flex:1;width:min(460px,100%);min-height:0;max-height:680px}
+.card{position:absolute;inset:0;background:var(--card);border-radius:20px;box-shadow:var(--shadow),0 18px 50px rgba(0,0,0,.28);overflow:hidden;
+  display:flex;flex-direction:column;touch-action:pan-y;will-change:transform;cursor:grab}
+.card.dragging{cursor:grabbing}
+.card.behind{transform:scale(.95) translateY(14px);filter:brightness(.8);pointer-events:none;transition:transform .25s,filter .25s}
+.card.fly{transition:transform .32s cubic-bezier(.3,.6,.4,1),opacity .32s}
+.card.back{transition:transform .28s cubic-bezier(.2,.9,.3,1.2)}
+.stamp{position:absolute;top:22px;z-index:3;font-family:var(--f-title);font-weight:700;font-size:22px;letter-spacing:.06em;padding:6px 14px;border-radius:10px;border:3px solid;opacity:0;pointer-events:none;text-transform:uppercase}
+.stamp.keep{left:20px;color:#3ccf7e;border-color:#3ccf7e;transform:rotate(-10deg);background:rgba(10,30,18,.55)}
+.stamp.del{right:20px;color:#ff5d5d;border-color:#ff5d5d;transform:rotate(10deg);background:rgba(36,8,8,.55)}
+
+.media{flex:1;min-height:0;background:var(--well);display:grid;place-items:center;overflow:hidden;position:relative}
+.media img{width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.media.cover img{object-fit:cover}
+.media .mark{font-family:var(--f-title);font-size:64px;font-weight:600;color:var(--dim2)}
+.swatch{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:22px;gap:4px}
+.swatch b{font-family:var(--f-mono);font-size:22px} .swatch span{opacity:.8;font-size:14px}
+.words{flex:1;min-height:0;overflow:hidden;padding:22px 22px 0;display:flex;flex-direction:column;gap:10px;-webkit-mask-image:linear-gradient(#000 calc(100% - 40px),transparent);mask-image:linear-gradient(#000 calc(100% - 40px),transparent)}
+.card.full .words{overflow-y:auto;-webkit-mask-image:none;mask-image:none;padding-bottom:20px;user-select:text;-webkit-user-select:text}
+.words h2{margin:0;font-family:var(--f-title);font-size:20px;line-height:1.3;font-weight:600;letter-spacing:var(--title-track)}
+.words p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.55;color:var(--body)}
+.words blockquote{margin:0;font-family:var(--f-title);font-size:20px;line-height:1.42;font-weight:500;white-space:pre-wrap;overflow-wrap:anywhere}
+.info{flex:none;padding:14px 18px 16px;display:flex;flex-direction:column;gap:4px}
+.info b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info span{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info .sp{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.info .sp i{font-style:normal;font-size:11.5px;padding:2px 8px;border-radius:6px;background:var(--well);color:var(--body)}
+
+.acts{flex:none;display:flex;align-items:center;justify-content:center;gap:22px;margin-top:18px}
+.acts button{border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--card);box-shadow:var(--shadow);color:var(--body);transition:transform .12s}
+.acts button:active{transform:scale(.92)}
+.acts .big{width:64px;height:64px} .acts .small{width:46px;height:46px}
+.acts svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acts .small svg{width:20px;height:20px}
+.acts .del{color:#ff6b6b} .acts .keep{color:#3ccf7e}
+.acts button:disabled{opacity:.35;cursor:default}
+.keys{font-size:11.5px;color:var(--dim2);margin-top:12px;text-align:center}
+.keys kbd{font-family:var(--f-mono);font-size:10.5px;padding:1px 5px;border-radius:4px;background:var(--well);color:var(--dim)}
+@media (hover:none){.keys{display:none}}
+
+.done{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:20px}
+.done h2{font-family:var(--f-title);font-size:22px;margin:0}
+.done p{color:var(--dim);margin:0;font-size:14px;line-height:1.5;max-width:320px}
+.done button,.done a{margin-top:8px;height:38px;padding:0 16px;border-radius:10px;border:0;background:var(--well);color:var(--ink);font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:var(--card);color:var(--ink);box-shadow:var(--shadow);border-radius:12px;padding:10px 14px;font-size:13.5px;display:flex;gap:12px;align-items:center;transition:.2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{border:0;background:none;color:var(--accent-text);font:inherit;font-weight:600;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div class="top" role="banner">
+  <a href="/command#stash" aria-label="Back to Stash" title="Back to Stash"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+  <h1>Sort your Stash</h1>
+  <span class="lab" id="lab" hidden>LAB · NOT SAVED</span>
+  <select class="order" id="order" aria-label="Order">
+    <option value="old">Oldest first</option>
+    <option value="new">Newest first</option>
+    <option value="shuffle">Shuffled</option>
+  </select>
+</div>
+<div class="bar"><i id="bar"></i></div>
+<div class="count" role="status" aria-live="polite" aria-atomic="true"><span id="left"></span><span id="tally"></span></div>
+<div class="deck" id="deck" role="main" aria-label="Stash items"></div>
+<div class="acts" role="region" aria-label="Sort actions">
+  <button class="big del" id="b-del" aria-label="Delete (left arrow)" title="Delete  ←"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <button class="small" id="b-undo" aria-label="Undo (Z)" title="Undo  Z" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <button class="big keep" id="b-keep" aria-label="Keep (right arrow)" title="Keep  →"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+</div>
+<div class="keys" role="contentinfo"><kbd>←</kbd> delete · <kbd>→</kbd> keep · <kbd>Z</kbd> undo · <kbd>Space</kbd> read it all</div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script src="/a11y.js"></script>
+
+<script>
+const qs = new URLSearchParams(location.search);
+const LAB = qs.has('lab');
+const TOKEN = qs.get('t') || '';
+const api = (p) => TOKEN ? p + (p.includes('?') ? '&' : '?') + 't=' + encodeURIComponent(TOKEN) : p;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const KIND = { image: 'Image', link: 'Link', note: 'Note', quote: 'Quote', colour: 'Colour', file: 'File', video: 'Video' };
+const SOURCE = { screenshot: 'Screenshot', clipboard: 'Clipboard', page: 'From a page', drop: 'Dropped in', paste: 'Pasted', note: 'Note', tray: 'Menu bar', upload: 'Uploaded', import: 'From your mind', phone: 'Phone', share: 'Shared', capture: 'Captured', agent: 'From an agent' };
+
+let queue = [];      // still to sort, in order
+let total = 0;
+const done = [];     // what happened, newest last, for undo: { it, action }
+let busy = false;
+
+if (LAB) $('lab').hidden = false;
+// Lab came from the Stash tab's Sort button: stay in lab on the way back.
+if (LAB) document.querySelectorAll('a[href="/command#stash"]').forEach((x) => { x.href = '/command?lab#stash'; });
+$('order').value = localStorage.getItem('meridian.stashSort.order') || 'old';
+
+function ago(ts) {
+  const d = (Date.now() - ts) / 86400e3;
+  if (d < 1) return 'today'; if (d < 2) return 'yesterday'; if (d < 7) return Math.floor(d) + ' days ago';
+  if (d < 60) return Math.floor(d / 7) + (Math.floor(d / 7) === 1 ? ' week ago' : ' weeks ago');
+  return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+const shot = (it) => it.kind === 'image' && (it.source === 'screenshot' || (it.labels || []).some((l) => l.id === 'screenshot'));
+function titleOf(it) {
+  if (it.title) return it.title;
+  if (it.kind === 'note' || it.kind === 'quote') return it.summary || '';
+  if (it.kind === 'link') return it.domain || it.url;
+  if (it.kind === 'colour') return it.hex;
+  return it.name || (shot(it) ? 'Screenshot' : KIND[it.kind] || 'Thing');
+}
+
+async function load() {
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 8000);
+  let j;
+  try {
+    const r = await fetch(api('/api/stash?limit=1000'), { signal: controller.signal });
+    if (!r.ok) throw new Error('Couldn’t reach your Stash (' + r.status + ')');
+    j = await r.json();
+  } catch (e) { if (controller.signal.aborted) throw new Error('Offline · can’t reach the Home Mac'); throw e; }
+  finally { clearTimeout(timer); }
+  // Not sorted yet: never kept, not pinned (pinning already says keep).
+  let items = (j.items || []).filter((it) => !it.kept && !it.pinned && !it.pending);
+  const order = $('order').value;
+  if (order === 'old') items.sort((a, b) => a.created - b.created);
+  else if (order === 'new') items.sort((a, b) => b.created - a.created);
+  else for (let i = items.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [items[i], items[k]] = [items[k], items[i]]; }
+  queue = items; total = items.length; done.length = 0;
+  render();
+}
+
+function cardHTML(it) {
+  const k = it.kind;
+  let body = '';
+  if (k === 'note' || k === 'quote') {
+    const head = titleOf(it);
+    body = `<div class="words">${head && k === 'note' ? `<h2>${esc(head)}</h2>` : ''}${k === 'quote' ? `<blockquote>“${esc(it.text)}”</blockquote>` : `<p>${esc(it.text)}</p>`}</div>`;
+  } else if (k === 'colour') {
+    const n = parseInt((it.hex || '#000').slice(1), 16); const light = ((n >> 16 & 255) * 299 + (n >> 8 & 255) * 587 + (n & 255) * 114) / 1000 > 150;
+    body = `<div class="swatch" style="background:${esc(it.hex)};color:${light ? '#111' : '#fff'}"><b>${esc(it.hex)}</b><span>${esc(it.title || '')}</span></div>`;
+  } else {
+    body = `<div class="media${k === 'link' ? ' cover' : ''}">${it.thumb ? `<img alt="${esc(it.summary||titleOf(it))}" src="${api(`/api/stash/${it.id}/thumb?v=${it.updated}`)}" draggable="false">` : `<span class="mark">${esc((it.domain || it.name || KIND[k] || '?').charAt(0).toUpperCase())}</span>`}</div>`;
+  }
+  const meta = [shot(it) ? 'Screenshot' : KIND[k], SOURCE[it.source] && SOURCE[it.source] !== KIND[k] && !shot(it) ? SOURCE[it.source] : '', it.domain && k !== 'link' ? it.domain : '', ago(it.created)].filter(Boolean).join(' · ');
+  const showTitle = !(k === 'note' || k === 'colour');
+  const sub = k === 'link' ? it.domain : k === 'quote' && it.page?.title ? it.page.title : it.note || '';
+  return `<div class="stamp keep">Keep</div><div class="stamp del">Delete</div>${body}
+    <div class="info">${showTitle ? `<b>${esc(titleOf(it))}</b>` : ''}<span>${esc(sub ? sub + ' · ' + meta : meta)}</span>${(it.spaces || []).length ? `<div class="sp">${it.spaces.map((s) => `<i>#${esc(s)}</i>`).join('')}</div>` : ''}</div>`;
+}
+
+function render() {
+  const deck = $('deck');
+  deck.innerHTML = '';
+  const kept = done.filter((d) => d.action === 'keep').length; const gone = done.length - kept;
+  $('left').textContent = queue.length ? `${queue.length} to go` : '';
+  $('tally').textContent = done.length ? `${kept} kept · ${gone} deleted` : '';
+  $('bar').style.width = total ? (100 * (total - queue.length) / total) + '%' : '0';
+  $('b-undo').disabled = !done.length;
+  $('b-keep').disabled = $('b-del').disabled = !queue.length;
+  if (!queue.length) {
+    deck.innerHTML = total
+      ? `<div class="done"><h2>All sorted</h2><p>${kept} kept, ${gone} deleted. Deleted things wait in the trash for 30 days, so Stash can still put them back.</p><a href="/command${LAB ? '?lab' : ''}#stash">Back to Stash</a></div>`
+      : `<div class="done"><h2>Nothing to sort</h2><p>Everything in your Stash has been kept or pinned already.</p><button id="again">Go through everything again</button></div>`;
+    $('again')?.addEventListener('click', () => resetKept());
+    return;
+  }
+  // The next card sits behind, so a swipe shows what's coming.
+  if (queue[1]) { const b = document.createElement('div'); b.className = 'card behind'; b.setAttribute('aria-hidden','true'); b.inert = true; b.innerHTML = cardHTML(queue[1]); deck.appendChild(b); }
+  const c = document.createElement('div'); c.className = 'card'; c.innerHTML = cardHTML(queue[0]); c.dataset.id = queue[0].id;
+  deck.appendChild(c);
+  drag(c);
+}
+
+// ---- writes. Lab mode only pretends.
+async function call(method, path, body) {
+  if (LAB) return { ok: true };
+  const r = await fetch(api(path), { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) throw new Error(j.error || 'That didn’t save (' + r.status + ')');
+  return j;
+}
+
+async function decide(action, dir) {
+  if (busy || !queue.length) return;
+  busy = true;
+  const it = queue[0];
+  const c = $('deck').querySelector('.card:not(.behind)');
+  if (c) {
+    c.classList.add('fly');
+    c.style.transform = `translateX(${dir * (window.innerWidth + 200)}px) rotate(${dir * 24}deg)`;
+    c.querySelector(dir > 0 ? '.stamp.keep' : '.stamp.del').style.opacity = 1;
+  }
+  try {
+    if (action === 'keep') await call('PATCH', '/api/stash/' + it.id, { kept: true });
+    else await call('DELETE', '/api/stash/' + it.id);
+  } catch (e) {
+    toast(e.message); busy = false; render(); return;
+  }
+  done.push({ it, action });
+  queue.shift();
+  setTimeout(() => { busy = false; render(); }, c ? 240 : 0);
+  if (action === 'delete') toast('Deleted', undo);
+}
+
+async function undo() {
+  if (busy || !done.length) return;
+  busy = true;
+  const last = done.pop();
+  try {
+    if (last.action === 'keep') await call('PATCH', '/api/stash/' + last.it.id, { kept: false });
+    else await call('POST', '/api/stash/' + last.it.id + '/restore', {});
+    queue.unshift(last.it);
+    toast(last.action === 'keep' ? 'Back in the pile' : 'Put back');
+  } catch (e) { done.push(last); toast(e.message); }
+  busy = false;
+  render();
+}
+
+// Kept ones come back for another go (kept is only a "seen it" mark).
+async function resetKept() {
+  const r = await fetch(api('/api/stash?limit=1000')); const j = await r.json();
+  for (const it of (j.items || []).filter((x) => x.kept)) await call('PATCH', '/api/stash/' + it.id, { kept: false }).catch(() => {});
+  await load();
+}
+
+// ---- dragging. Horizontal only; vertical scrolls a long note.
+function drag(card) {
+  let x0 = 0, y0 = 0, dx = 0, t0 = 0, id = null, moved = false, locked = null;
+  const keep = card.querySelector('.stamp.keep'), del = card.querySelector('.stamp.del');
+  const behind = $('deck').querySelector('.card.behind');
+  const set = () => {
+    card.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
+    const k = Math.min(1, Math.abs(dx) / 110);
+    keep.style.opacity = dx > 0 ? k : 0; del.style.opacity = dx < 0 ? k : 0;
+    if (behind) behind.style.transform = `scale(${0.95 + 0.05 * k}) translateY(${14 - 14 * k}px)`;
+  };
+  card.addEventListener('pointerdown', (e) => {
+    if (busy || e.button > 0) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; t0 = performance.now(); moved = false; locked = null;
+    card.classList.remove('back');
+  });
+  card.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== id) return;
+    const mx = e.clientX - x0, my = e.clientY - y0;
+    if (!locked && Math.hypot(mx, my) > 8) locked = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+    if (locked !== 'x') return;
+    if (!moved) { moved = true; card.setPointerCapture(id); card.classList.add('dragging'); }
+    dx = mx; set();
+  });
+  const end = (e) => {
+    if (e.pointerId !== id) return;
+    id = null; card.classList.remove('dragging');
+    if (!moved) { if (locked === null && e.type === 'pointerup') card.classList.toggle('full'); return; }
+    const v = dx / Math.max(1, performance.now() - t0);
+    const far = Math.abs(dx) > Math.min(130, card.clientWidth * 0.28) || (Math.abs(v) > 0.6 && Math.abs(dx) > 40);
+    if (far) { decide(dx > 0 ? 'keep' : 'delete', dx > 0 ? 1 : -1); return; }
+    card.classList.add('back'); dx = 0; set();
+  };
+  card.addEventListener('pointerup', end);
+  card.addEventListener('pointercancel', end);
+}
+
+// ---- keys, buttons, toast
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest('select')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); decide('keep', 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); decide('delete', -1); }
+  else if (e.key === 'z' || e.key === 'Z' || ((e.metaKey || e.ctrlKey) && e.key === 'z')) { e.preventDefault(); undo(); }
+  else if (e.key === ' ') { e.preventDefault(); $('deck').querySelector('.card:not(.behind)')?.classList.toggle('full'); }
+});
+$('b-keep').addEventListener('click', () => decide('keep', 1));
+$('b-del').addEventListener('click', () => decide('delete', -1));
+$('b-undo').addEventListener('click', undo);
+$('order').addEventListener('change', () => { localStorage.setItem('meridian.stashSort.order', $('order').value); load().catch((e) => toast(e.message)); });
+
+let toastT;
+function toast(msg, onUndo) {
+  const t = $('toast'), opener = document.activeElement;
+  const hide = () => { t.classList.remove('on'); if (t.contains(document.activeElement) && opener?.isConnected) opener.focus({ preventScroll: true }); t.querySelectorAll('button').forEach((b) => b.inert = true); };
+  t.innerHTML = `<span>${esc(msg)}</span>${onUndo ? '<button>Undo</button>' : ''}`;
+  if (onUndo) t.querySelector('button').onclick = () => { hide(); onUndo(); };
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(hide, 3500);
+}
+
+load().catch((e) => { $('deck').innerHTML = `<div class="done"><h2>Couldn’t open your Stash</h2><p>${esc(e.message)}</p></div>`; });
+</script>
+</body>
+</html>

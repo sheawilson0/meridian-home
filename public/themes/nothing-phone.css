@@ -1,0 +1,217 @@
+/* Nothing on the phone (8 Oct 2026). The same look as /themes/nothing.css on the desktop,
+   for phone.css's pieces: black, white and one red; numbers and titles in Doto (round dots),
+   labels in small Space Mono capitals, body in Space Grotesk; flat, very round cards on a still
+   dot grid; pills outlined until chosen, then white; the next meeting as a white card.
+   phone.js sets data-surface from the desktop's Look choice and loads the fonts.
+   Text stays at 4.5:1 or better: red text uses --accent-text, quiet text uses --dim, not --dim2. */
+
+:root[data-surface="nothing"]{
+  --page:#000; --card:#111112; --card-2:#1a1a1b; --well:#1e1e1f; --well-hi:#2a2a2b;
+  --ink:#fff; --body:#d4d4d4; --dim:#8a8a8a; --dim2:#575757; --line-hi:rgba(255,255,255,.16);
+  --good:#fff; --bad:#ff3a3a; --warn:#fff; --blue:#fff; --claude:#fff; --openai:#fff; --you:#fff;
+  --accent:#d71921; --accent-ink:#fff; --accent-text:#ff3a3a;
+  --f-dot:'Doto','Space Mono',ui-monospace,monospace;
+  --f-display:var(--f-dot); --f-body:'Space Grotesk',system-ui,sans-serif; --f-mono:'Space Mono',ui-monospace,monospace;
+  --nd-grid:radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1.5px);
+  --nd-label:400 11px/1.2 var(--f-mono);
+  --r:24px; --r-s:16px;
+  /* Doto's ROND axis at 100 gives round dots, closer to Nothing's Ndot. Other faces ignore it. */
+  font-variation-settings:'ROND' 100;
+  color-scheme:dark;
+}
+
+/* The grid sits on #app; the screens scroll over it, so it stays still like nothing.tech. */
+[data-surface="nothing"] #app,[data-surface="nothing"] .push{background-color:#000;background-image:var(--nd-grid);background-size:16px 16px;background-position:8px 8px}
+
+/* ---------- type ---------- */
+[data-surface="nothing"] :is(.t-title,.hello){font-family:var(--f-dot);font-style:normal;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+[data-surface="nothing"] .t-title{font-size:34px;line-height:1}
+[data-surface="nothing"] .hello{font-size:44px;line-height:.95;margin-top:16px}
+[data-surface="nothing"] :is(.hello,.t-title) .stop{color:var(--accent)}
+[data-surface="nothing"] .line{font:400 16px/1.45 var(--f-body);color:var(--body);letter-spacing:-.005em;margin-top:10px}
+[data-surface="nothing"] .t-sub{font-size:14px}
+[data-surface="nothing"] .eyebrow span{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;background:rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px var(--line-hi);padding:5px 11px;color:var(--body)}
+[data-surface="nothing"] .eyebrow span:first-child::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:1px}
+
+/* Labels: small capitals in mono, the way Nothing heads every widget. */
+[data-surface="nothing"] .sec-h{align-items:center}
+[data-surface="nothing"] .sec-h h3{font:var(--nd-label);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink)}
+[data-surface="nothing"] :is(.sec-h .sub,.sec-h .end,.group-h,.daygroup){font-family:var(--f-mono);font-size:10.5px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+[data-surface="nothing"] .sec-h .end :is(button,a){color:var(--dim);text-transform:uppercase;letter-spacing:inherit}
+[data-surface="nothing"] .group-h{margin:26px 4px 8px}
+[data-surface="nothing"] :is(.more-link,.receipt){font-family:var(--f-mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+[data-surface="nothing"] :is(.msg .time,.daydiv){font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+[data-surface="nothing"] .who{font-family:var(--f-mono);font-size:10.5px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+[data-surface="nothing"] .who.meridian{color:var(--accent-text)}
+[data-surface="nothing"] :is(.row .r,.job .r,.proj .ph .r){font-family:var(--f-mono);font-size:11px;letter-spacing:.03em}
+[data-surface="nothing"] .day small{font-size:11.5px}
+
+/* ---------- cards and rows: flat, very round, no lines ---------- */
+[data-surface="nothing"] .card{background:var(--card)}
+[data-surface="nothing"] .card.list{padding:2px 16px}
+[data-surface="nothing"] :is(.row+.row,.job+.job,.kindrow+.kindrow,.list-link+.list-link,.door+.door,.steps li+li){box-shadow:0 -1px 0 #1f1f20}
+[data-surface="nothing"] .bar{width:7px;height:7px;align-self:center;border-radius:50%;margin:0}
+[data-surface="nothing"] .src{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);border-radius:999px;padding:2px 7px}
+[data-surface="nothing"] .src[style*="accent"]{color:var(--accent-text)!important;box-shadow:inset 0 0 0 1px rgba(215,25,33,.6)}
+[data-surface="nothing"] .quickadd{border-radius:999px;background:var(--card-2);padding:0 16px}
+
+/* Ticks: an outlined ring, red when done. */
+[data-surface="nothing"] .tick{box-shadow:inset 0 0 0 1.5px #555}
+[data-surface="nothing"] .row.done .tick{background:var(--accent);box-shadow:none}
+[data-surface="nothing"] .row.done .t{color:var(--dim);text-decoration-color:var(--dim)}
+
+/* ---------- Up next: a white widget with the time in dots ---------- */
+[data-surface="nothing"] .next{background:#fff;color:#000;border-radius:26px;padding:18px 20px 16px}
+[data-surface="nothing"] .next .when{align-items:center;gap:6px 12px}
+[data-surface="nothing"] .next .when b{font-family:var(--f-dot);font-weight:800;font-size:48px;line-height:.9;letter-spacing:0;color:#000}
+[data-surface="nothing"] .next .when span{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+[data-surface="nothing"] .next .when span::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
+[data-surface="nothing"] .next h4{font:500 21px/1.2 var(--f-body);letter-spacing:-.02em;color:#000;margin-top:10px}
+[data-surface="nothing"] .next .meta{color:#555;font-size:13px}
+[data-surface="nothing"] .next .btn:is(.glass,:not(.primary)){background:#000;color:#fff}
+[data-surface="nothing"] .next .btn.primary{background:var(--accent);color:#fff}
+[data-surface="nothing"] .next .pill.you{background:var(--accent);color:#fff;box-shadow:none}
+[data-surface="nothing"] .next .pill.ok{background:transparent;color:#555;box-shadow:inset 0 0 0 1px #bbb}
+
+/* Status pills elsewhere. */
+[data-surface="nothing"] .pill{font-family:var(--f-mono);font-size:10px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;padding:3px 8px}
+[data-surface="nothing"] .pill.you{background:transparent;color:var(--accent-text);box-shadow:inset 0 0 0 1px rgba(215,25,33,.6)}
+[data-surface="nothing"] .pill.run{background:#fff;color:#000}
+[data-surface="nothing"] .pill.ok{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 1px var(--line-hi)}
+[data-surface="nothing"] .pill.bad{background:var(--accent);color:#fff}
+
+/* ---------- deadlines count down in dots; the closest is a red widget ---------- */
+[data-surface="nothing"] .dl{border-radius:22px;padding:14px 14px 13px;width:152px}
+[data-surface="nothing"] .dl b{font-family:var(--f-dot);font-style:normal;font-weight:800;font-size:32px;line-height:.9;letter-spacing:0;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+[data-surface="nothing"] .dl b small{font-family:var(--f-mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-left:0}
+[data-surface="nothing"] .dl p{font-size:13px;margin-top:10px}
+[data-surface="nothing"] .dl.far b{color:var(--body)}
+[data-surface="nothing"] .dl.late b{color:var(--accent-text)}
+[data-surface="nothing"] .dl:first-child:not(.far){background:var(--accent);color:#fff}
+[data-surface="nothing"] .dl:first-child:not(.far) :is(b,p){color:#fff}
+[data-surface="nothing"] .dl:first-child:not(.far) b small{color:rgba(255,255,255,.8)}
+
+/* ---------- agents and Needs you ---------- */
+[data-surface="nothing"] .needs{background:var(--card);box-shadow:none;padding:2px 16px}
+[data-surface="nothing"] .job .dot{width:8px;height:8px}
+[data-surface="nothing"] .job .dot.you{background:var(--accent)}
+[data-surface="nothing"] .job .dot.run{background:#fff;animation:nd-pulse 1.8s infinite}
+[data-surface="nothing"] .job .dot.ok{background:#555}
+[data-surface="nothing"] .job .dot.bad{background:var(--accent);animation:nd-glyph 2.4s ease-in-out infinite}
+[data-surface="nothing"] .proj{border-radius:22px;padding:15px 16px}
+[data-surface="nothing"] .proj .ph b{font-weight:500;letter-spacing:-.01em}
+[data-surface="nothing"] .proj .tags span{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);border-radius:999px;padding:3px 8px}
+[data-surface="nothing"] .pinned{border-radius:var(--r);padding:14px 16px}
+[data-surface="nothing"] .pinned b{font-family:var(--f-dot);font-style:normal;font-weight:900;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .av{border-radius:50%!important;background:#000;box-shadow:inset 0 0 0 1px var(--line-hi)}
+[data-surface="nothing"] .unread{background:var(--accent);animation:nd-glyph 2.4s ease-in-out infinite}
+
+/* ---------- controls: pills, outlined until chosen, then white ---------- */
+[data-surface="nothing"] .btn{border-radius:999px;font-family:var(--f-mono);font-size:11.5px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;padding:0 16px}
+[data-surface="nothing"] .btn.sm{border-radius:999px;font-size:10.5px;padding:0 13px}
+[data-surface="nothing"] .btn.primary{background:#fff;color:#000}
+[data-surface="nothing"] .btn.ghost{background:transparent;color:var(--body);box-shadow:inset 0 0 0 1px var(--line-hi)}
+[data-surface="nothing"] .btn.glass{background:rgba(255,255,255,.1)}
+[data-surface="nothing"] .ibtn{border-radius:50%}
+[data-surface="nothing"] .ibtn.bg{background:var(--card-2)}
+[data-surface="nothing"] .chip{border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--body);padding:0 13px}
+[data-surface="nothing"] .chip[aria-pressed=true]{background:#fff;color:#000;box-shadow:none}
+[data-surface="nothing"] .seg{border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi)}
+[data-surface="nothing"] .seg button{border-radius:999px;font-family:var(--f-mono);font-size:11px;font-weight:400;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
+[data-surface="nothing"] .seg button[aria-pressed=true]{background:#fff;color:#000}
+[data-surface="nothing"] .sw2[aria-checked=true]{background:var(--accent)}
+[data-surface="nothing"] .kindrow input[type=time]{border-radius:999px;padding:5px 12px;font-family:var(--f-mono);font-size:13px}
+
+/* ---------- tab bar ---------- */
+[data-surface="nothing"] .tabbar::before{background:rgba(0,0,0,.88)}
+[data-surface="nothing"] .tab{font-family:var(--f-mono);font-size:9.5px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+[data-surface="nothing"] .tab[aria-current=page]{color:var(--ink);font-weight:400}
+[data-surface="nothing"] .tab::after{width:5px;height:5px;margin-left:-2.5px;bottom:-4px}
+[data-surface="nothing"] .tab .badge{background:var(--accent);color:#fff;font-family:var(--f-mono);font-weight:700;font-size:10px}
+[data-surface="nothing"] .tellbtn{border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 0 0 5px #000,0 0 0 6px rgba(215,25,33,.35)}
+
+/* ---------- sheets: black glass with a hairline, like the OS's pop-ups ---------- */
+[data-surface="nothing"] .scrim{background:rgba(0,0,0,.72)}
+[data-surface="nothing"] .sheet{background:#0a0a0a;border-radius:30px 30px 0 0;box-shadow:0 -1px 0 var(--line-hi),0 -24px 60px rgba(0,0,0,.8)}
+[data-surface="nothing"] .sheet .grab{background:#333}
+[data-surface="nothing"] .sheet .sh h3{font:500 22px/1.15 var(--f-body);letter-spacing:-.02em}
+[data-surface="nothing"] .sheet .sf{border-top-color:#1f1f20}
+
+/* ---------- Tell ---------- */
+[data-surface="nothing"] .tell-in{background:var(--card);border-radius:24px;padding:16px 18px 12px}
+[data-surface="nothing"] .tell-in textarea::placeholder{color:var(--dim)}
+[data-surface="nothing"] .tell-tools .hint{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+/* What you said reads as the chosen thing: white. */
+[data-surface="nothing"] :is(.said,.msg.me .b){background:#fff;color:#000}
+[data-surface="nothing"] .said small{color:#555;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .think{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;line-height:1.5}
+[data-surface="nothing"] .think.bad{color:var(--accent-text)}
+[data-surface="nothing"] .act{border-radius:20px;padding:13px 13px 13px 14px}
+[data-surface="nothing"] .act .k{border-radius:50%;background:var(--well);color:var(--ink)}
+[data-surface="nothing"] .act .k:is(.cal,.todo,.money,.mail,.fix,.note){background:var(--well);color:var(--ink)}
+[data-surface="nothing"] .act .sw{border-radius:50%;box-shadow:inset 0 0 0 1.5px #555}
+[data-surface="nothing"] .act.on .sw{background:var(--accent);box-shadow:none}
+[data-surface="nothing"] .act.ask{box-shadow:inset 0 0 0 1px rgba(215,25,33,.55)}
+[data-surface="nothing"] .act .why{color:var(--accent-text)}
+[data-surface="nothing"] .act .q button{border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);padding:4px 13px}
+[data-surface="nothing"] .act .q button[aria-pressed=true]{background:#fff;color:#000;box-shadow:none}
+[data-surface="nothing"] .act.did .k{background:#fff;color:#000}
+[data-surface="nothing"] .act.failed .k{background:var(--accent);color:#fff}
+[data-surface="nothing"] .act .undo{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- the Meridian thread ---------- */
+[data-surface="nothing"] .push .ph{background:linear-gradient(#000 72%,#0000)}
+[data-surface="nothing"] .push .ph b{font-family:var(--f-dot);font-style:normal;font-weight:900;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .push .ph span span{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+[data-surface="nothing"] .msg .b{background:var(--card)}
+[data-surface="nothing"] .composer{border-radius:999px;background:var(--card);box-shadow:0 0 0 1px var(--line-hi),0 12px 40px #000a}
+
+/* ---------- More ---------- */
+[data-surface="nothing"] .door .di{border-radius:50%}
+[data-surface="nothing"] .door .tag{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);border-radius:999px;color:var(--dim)}
+[data-surface="nothing"] .door .tag.go{background:transparent;color:var(--ink)}
+[data-surface="nothing"] .door .tag.go::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:5px;vertical-align:1px}
+[data-surface="nothing"] .steps li::before{border-radius:50%;background:transparent;box-shadow:inset 0 0 0 1px var(--line-hi);font-family:var(--f-mono);font-weight:400;font-size:11px}
+[data-surface="nothing"] .copyfield{border-radius:18px;background:var(--card)}
+[data-surface="nothing"] .soul{border-radius:22px}
+[data-surface="nothing"] .diffnote{background:var(--card-2);border-radius:20px}
+[data-surface="nothing"] #widgets-body>.card:first-child{box-shadow:inset 0 0 0 1px var(--line-hi)!important}
+[data-surface="nothing"] .note{border-radius:22px}
+[data-surface="nothing"] .note-acts span{border-radius:999px}
+/* Widget mock-ups, redrawn as Nothing widgets on the dot grid. */
+[data-surface="nothing"] :is(.wall,.lock){background-color:#000;background-image:var(--nd-grid);background-size:12px 12px;box-shadow:inset 0 0 0 1px var(--line-hi)}
+[data-surface="nothing"] .wd{background:var(--card);box-shadow:none;border-radius:24px}
+[data-surface="nothing"] .wd .wl{font-family:var(--f-mono);font-size:10px;font-weight:400;letter-spacing:.08em}
+[data-surface="nothing"] .wd .big{font-family:var(--f-dot);font-weight:800;font-size:34px;letter-spacing:0}
+[data-surface="nothing"] .wd .tt{font:500 15px/1.2 var(--f-body)}
+[data-surface="nothing"] .wd.tell{background:var(--accent);color:#fff}
+[data-surface="nothing"] .wd.tell .wl{color:rgba(255,255,255,.8)}
+[data-surface="nothing"] .wd.tell .big{font-family:var(--f-dot);font-style:normal;font-weight:800;font-size:26px;text-transform:uppercase}
+[data-surface="nothing"] .lock .clock{font-family:var(--f-dot);font-weight:800;font-size:68px;letter-spacing:0}
+[data-surface="nothing"] .lock .date{font-family:var(--f-mono);font-size:11px;font-weight:400;letter-spacing:.08em;text-transform:uppercase}
+[data-surface="nothing"] .island .l i{background:#fff;animation:nd-pulse 1.8s infinite}
+
+/* ---------- Money ---------- */
+[data-surface="nothing"] .money-big{font-family:var(--f-dot);font-weight:800;font-size:48px;letter-spacing:0}
+[data-surface="nothing"] .money-big small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
+[data-surface="nothing"] .meter{height:6px;border-radius:0;background:radial-gradient(circle,#333 1.3px,transparent 1.7px) 0 50%/6px 6px repeat-x}
+[data-surface="nothing"] .meter i{border-radius:0;background:radial-gradient(circle,#fff 1.3px,transparent 1.7px) 0 50%/6px 6px repeat-x}
+[data-surface="nothing"] .meter i[style*="--bad"]{background:radial-gradient(circle,var(--accent) 1.3px,transparent 1.7px) 0 50%/6px 6px repeat-x!important}
+[data-surface="nothing"] .locked > p:first-of-type{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+[data-surface="nothing"] #m-pass{border-radius:999px!important;font-family:var(--f-mono)}
+[data-surface="nothing"] #m-numpad{font-family:var(--f-mono)!important;font-weight:400!important}
+
+/* ---------- toast and offline ---------- */
+[data-surface="nothing"] .toast{background:#fff;color:#000;border-radius:999px;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:11px 18px}
+[data-surface="nothing"] .toast button{color:var(--accent);font-weight:700}
+[data-surface="nothing"] .offline{background:#000;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(215,25,33,.7);border-radius:999px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
+
+/* ---------- motion: the red dot breathes like the light on the back of the phone ---------- */
+[data-surface="nothing"] .hello .stop{animation:nd-glyph 4.8s ease-in-out 1.2s infinite}
+[data-surface="nothing"] .next .when span::before{animation:nd-glyph 2.4s ease-in-out infinite}
+@keyframes nd-glyph{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes nd-pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.4)}70%{box-shadow:0 0 0 7px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+@media (prefers-reduced-motion:reduce){
+  [data-surface="nothing"] :is(.hello .stop,.job .dot,.unread,.island .l i,.think i,.act){animation:none}
+  [data-surface="nothing"] .next .when span::before{animation:none}
+}

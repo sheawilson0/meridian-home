@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="/lab-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Voice</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/voice/voice.css">
+<style>
+/* Laptop: the draft on the left, the call on the right. Narrow (side panel): call on top. */
+body{display:flex;flex-direction:column;min-height:100vh}
+.bar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.bar h1{font-size:15px;font-weight:600;margin:0 6px 0 0}
+.bar select{max-width:280px}
+.bar .new{height:32px;padding:0 12px;border-radius:9px;background:var(--well);color:var(--body)}
+.bar .legend{margin-left:auto}
+.layout{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0}
+.doc{padding:22px 28px 60px;max-width:760px;width:100%;justify-self:center;display:flex;flex-direction:column;gap:10px}
+.doc .kind{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+.row{display:grid;grid-template-columns:64px 1fr;align-items:start;gap:8px}
+.row > span{color:var(--dim);font-size:13px;padding-top:10px}
+body:not([data-kind="email"]) .r-subject{display:none}
+body:not([data-kind="notion"]) .r-where{display:none}
+#f-body{font-size:15px;line-height:1.6}
+#f-body .ed-ta{min-height:260px}
+.nodraft .doc > :not(.empty){display:none}
+.empty{display:none;color:var(--dim);padding:40px 0}
+.nodraft .empty{display:block}
+.call{border-left:1px solid var(--hair);padding:22px 20px;display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.call .center{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0}
+#status{font-weight:500}
+#meter{font-variant-numeric:tabular-nums}
+.call .foot{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.call .link{background:none;color:var(--w-you);text-align:left;font-size:13px}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr}
+  .call{border-left:0;border-bottom:1px solid var(--hair);order:-1}
+  .call .center{flex-direction:row;justify-content:flex-start;gap:14px}
+  .talk{width:64px;height:64px}
+  .captions{max-height:110px}
+  .doc{padding:16px}
+  .bar .legend{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body class="nodraft">
+<header class="bar">
+  <h1>Voice</h1>
+  <select id="pick" aria-label="Draft"></select>
+  <button class="new" id="new">New draft</button>
+  <div class="legend" aria-label="Colours">
+    <span class="you"><i></i>You</span><span class="voice"><i></i>Voice</span><span class="dot"><i></i>Dot</span><span class="agent"><i></i>Claude, Codex</span>
+  </div>
+</header>
+<div class="layout">
+  <main class="doc">
+    <p class="empty">Choose a draft, start a new one, or press Talk and ask for one.</p>
+    <div class="kind" id="kind"></div>
+    <label class="row r-to"><span>To</span><div id="f-to" data-placeholder="Who it's for"></div></label>
+    <label class="row r-subject"><span>Subject</span><div id="f-subject" data-placeholder="Subject"></div></label>
+    <label class="row r-where"><span>Where</span><div id="f-where" data-placeholder="Where in Notion"></div></label>
+    <div id="f-body" data-placeholder="Write here, or just talk."></div>
+    <p class="dim small" id="last"></p>
+  </main>
+  <aside class="call">
+    <div class="seg" id="engines" aria-label="Engine"></div>
+    <div style="display:flex;gap:8px;align-items:center"><select id="voice" aria-label="Voice" style="flex:1"></select><span class="dim small" id="enote"></span></div>
+    <div class="center">
+      <button class="talk" id="talk" data-state="idle" aria-label="Talk"><span class="ring"></span><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <div style="text-align:center"><div id="status">Ready</div><div class="dim small" id="meter">⌥Space to talk</div></div>
+    </div>
+    <div class="captions" id="captions" aria-live="polite"></div>
+    <div class="warn" id="keywarn" hidden>No OpenAI key on Home yet, so Talk won't connect. The colour demo below still works.</div>
+    <div class="foot">
+      <button class="link" id="demo">Try the colours without voice (writes a demo draft)</button>
+      <div class="small dim">On your phone: <a id="phone" href="/voice/call.html">/voice/call.html</a></div>
+      <div class="small dim" id="today"></div>
+    </div>
+  </aside>
+</div>
+<script src="/voice/voice-core.js"></script>
+<script src="/voice/voice-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="/lab-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161618">
+<meta name="color-scheme" content="dark">
+<title>Draft</title>
+<link rel="icon" href="/dashboard-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap">
+<script>
+// The command centre's accent, before first paint.
+try{const p=JSON.parse(localStorage.getItem('meridian.cc.prefs')||'{}');if(p.accent)document.documentElement.style.setProperty('--accent',p.accent);}catch{}
+</script>
+<style>
+/* Structural labels must not depend on the optional focus helper. */
+.a11y-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+/* A draft (drafts.js): an email, Slack message, text or note that Owner and his
+   agent write together. Lives in a tab in the Mac app's side panel, so it uses
+   the panel's surface (#161618) and stays usable from 360 px up; it also works
+   on its own in a phone browser. */
+:root{
+  --accent:#f6c93a; --surface:#161618; --raised:#1d1d20; --well:rgba(255,255,255,.055); --well-hi:rgba(255,255,255,.09);
+  --ink:#f4f4f5; --body:#d4d4d8; --dim:#8e8e94; --dim2:#5f5f66; --hair:rgba(255,255,255,.07);
+  --good:#6cc39a; --agent:#8ea2ff; --ease:cubic-bezier(.2,.9,.25,1);
+  --f:'Outfit',-apple-system,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--surface);color:var(--ink);font:14px/1.45 var(--f);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column}
+button{font:inherit;color:inherit;background:none;border:0;cursor:default;padding:0}
+input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;margin:0;padding:0;width:100%}
+::placeholder{color:var(--dim2)}
+svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---- top: a breadcrumb like Notion's (the kind › where it goes, or To and
+   from), then who's editing. Layout E from /design/drafts-layouts (8 Oct). */
+.top{display:flex;align-items:center;gap:6px;padding:12px 16px 0;flex:none;min-width:0}
+.crumb{display:flex;align-items:center;gap:2px;min-width:0;flex:1;color:var(--dim);font-size:12.5px}
+.crumb .sep{color:var(--dim2);padding:0 2px}
+.kb{display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;border-radius:7px;color:var(--body);font-size:12.5px;font-weight:500;white-space:nowrap}
+.kb:hover,.kb[aria-expanded="true"]{background:var(--well);color:var(--ink)}
+.path{display:flex;align-items:center;gap:6px;min-width:0;height:28px;padding:0 7px;border-radius:7px;flex:0 1 auto}
+.path:hover,.path:focus-within{background:var(--well)}
+.path input{height:28px;font-size:12.5px;color:var(--body);min-width:40px;max-width:100%;text-overflow:ellipsis}
+.path input:focus{color:var(--ink)}
+.path .pl{flex:none}
+.p-where,.p-to,.p-note,.fromwrap{display:none}
+[data-kind="notion"] .p-where,[data-kind="email"] .p-to,[data-kind="slack"] .p-to,[data-kind="text"] .p-to,[data-kind="note"] .p-note,[data-kind="email"] .fromwrap{display:flex}
+.p-note{flex:1;padding:0 7px}
+.fromwrap{position:relative;flex:none}
+.from{display:flex;align-items:center;gap:4px;height:28px;padding:0 7px;border-radius:7px;color:var(--dim);white-space:nowrap}
+.from:hover,.from[aria-expanded="true"]{background:var(--well);color:var(--body)}
+.from b{font-weight:500;color:var(--body)}
+.from.unset b{font-weight:400;color:var(--dim)}
+.from svg{width:11px;height:11px;opacity:.6}
+.menu .h{padding:6px 10px 4px;color:var(--dim2);font-size:11.5px;font-weight:500}
+.menu .why{padding:2px 10px 6px;color:var(--agent);font-size:12.5px;line-height:1.35}
+.menu button:is([aria-pressed="true"],[aria-checked="true"]){color:var(--ink)}
+.menu button:is([aria-pressed="true"],[aria-checked="true"])::after{content:'';margin-left:auto;width:12px;height:7px;border:solid var(--accent);border-width:0 0 1.8px 1.8px;transform:rotate(-45deg) translate(1px,-2px)}
+.menu .other{display:flex;align-items:center;gap:9px;height:32px;padding:0 10px;margin-top:2px;border-radius:7px;background:var(--well);font-size:13px}
+.menu .other input{color:var(--ink)}
+.menu.left{left:0;right:auto}
+.who{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--dim);font-size:12px;white-space:nowrap;min-width:0;padding-left:9px}
+.who span{overflow:hidden;text-overflow:ellipsis}
+.who.agent span{color:var(--body)}
+.who i{width:7px;height:7px;border-radius:50%;background:var(--dim2);flex:none;transition:background .3s}
+.who.agent i{background:var(--agent);box-shadow:0 0 0 4px color-mix(in srgb,var(--agent) 22%,transparent);animation:pulse 1.6s var(--ease) infinite}
+.who.saved i{background:var(--good)}
+.who.err{color:#ef8a7e} .who.err i{background:#ef8a7e}
+@keyframes pulse{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--agent) 0%,transparent)}}
+.more{position:relative}
+.ibtn{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--dim)}
+.ibtn:hover{background:var(--well);color:var(--ink)}
+.menu{position:absolute;right:0;top:32px;z-index:5;min-width:210px;padding:5px;border-radius:11px;background:#0a0a0b;box-shadow:0 0 0 .5px rgba(255,255,255,.1),0 18px 50px rgba(0,0,0,.6);display:none}
+.menu.open{display:block}
+.menu button,.menu a{display:flex;align-items:center;gap:9px;width:100%;height:32px;padding:0 10px;border-radius:7px;color:var(--body);font-size:13px;text-decoration:none;white-space:nowrap}
+.menu button:hover,.menu a:hover{background:var(--well-hi);color:var(--ink)}
+.menu hr{border:0;height:1px;background:var(--hair);margin:4px 6px}
+.menu .bad{color:#ef8a7e}
+
+/* ---- the paper: a big title line, then the words. No boxes. */
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.paper{max-width:760px;margin:0 auto;padding:14px 16px 28px}
+.qrow{display:flex;align-items:center;gap:8px;height:28px;padding:0 7px;margin:0 -7px 2px;border-radius:7px;color:var(--dim);font-size:13px}
+.qrow:hover,.qrow:focus-within{background:var(--well)}
+.qrow span{width:30px;flex:none}
+.qrow input{color:var(--body);font-size:13px}
+.qrow .x{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--dim2);opacity:0}
+.qrow:hover .x,.qrow:focus-within .x{opacity:1}
+@media (hover:none){ .qrow .x{opacity:1} }
+.qrow .x:hover{background:var(--well-hi);color:var(--ink)}
+.qrow .x svg{width:12px;height:12px}
+.qrow[hidden],[data-kind]:not([data-kind="email"]) .qrow{display:none}
+.ttl{display:none;width:100%;resize:none;overflow:hidden;font-size:27px;line-height:1.2;font-weight:600;letter-spacing:-.01em;color:var(--ink);padding:2px 2px 0;field-sizing:content}
+[data-kind="notion"] #f-title,[data-kind="note"] #f-title,[data-kind="email"] #f-subject{display:block}
+.hint{display:none;align-items:center;gap:8px;font-size:12px;color:var(--dim2);padding:5px 2px 0}
+.hint.on{display:flex}
+.hint button{color:var(--dim);font-size:12px;padding:1px 6px;border-radius:5px;background:var(--well)}
+.hint button:hover{color:var(--ink);background:var(--well-hi)}
+.hint kbd{font:inherit;font-size:11px;color:var(--dim2)}
+@media (hover:none){ .hint kbd{display:none} }
+.body{position:relative;margin-top:12px}
+.body textarea{display:block;min-height:260px;resize:none;font-size:15px;line-height:1.6;color:var(--body);padding:4px 2px;overflow:hidden}
+.body textarea:focus{color:var(--ink)}
+[data-kind="slack"] .body,[data-kind="text"] .body{margin-top:2px}
+/* An agent's change glows for a moment so it's easy to see what moved. */
+.flash{animation:flash 2.2s var(--ease)}
+@keyframes flash{0%,30%{background:color-mix(in srgb,var(--agent) 16%,transparent);box-shadow:inset 3px 0 0 var(--agent)}100%{background:transparent;box-shadow:inset 3px 0 0 transparent}}
+.body .flash,.body textarea.flash,.ttl.flash,.path.flash,.from.flash,.qrow.flash{border-radius:8px}
+
+/* ---- bottom bar */
+.bar{flex:none;display:flex;align-items:center;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--surface) 30%);box-shadow:0 -1px 0 var(--hair)}
+.stat{color:var(--dim);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.stat b{color:var(--body);font-weight:500}
+.btn{height:32px;padding:0 12px;border-radius:9px;display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;background:var(--well);color:var(--ink);white-space:nowrap;transition:background .15s,transform .1s}
+.btn:hover{background:var(--well-hi)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:#1d1606}
+.btn.primary:hover{background:color-mix(in srgb,var(--accent) 88%,#fff)}
+.btn.done{background:color-mix(in srgb,var(--good) 22%,transparent);color:var(--good)}
+.btn .k{font-size:11px;opacity:.6;font-weight:400}
+.btn[hidden]{display:none}
+@media (max-width:460px){ .btn .lbl-long,.btn .k{display:none} }
+/* Narrow (a phone, a thin side panel): who's editing becomes just the dot, unless something's wrong. */
+@media (max-width:420px){ #kindWord{display:none} .kb{padding:0 7px} .who:not(.err) span{display:none} .top{padding-left:10px;padding-right:10px} }
+@media (max-width:400px){ #copyBtn span{display:none} #copyBtn{padding:0 9px} }
+
+/* ---- approved / sent banner */
+.banner{display:none;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:11px;font-size:13px}
+[data-status="ready"] .banner.ready,[data-status="sent"] .banner.sent{display:flex}
+.banner.ready{background:color-mix(in srgb,var(--good) 13%,transparent);color:var(--good)}
+.banner.sent{background:var(--well);color:var(--body)}
+.banner.sent a{margin-left:auto;color:var(--ink);font-weight:500;text-decoration:none;white-space:nowrap}
+.banner.sent a:hover{text-decoration:underline}
+.banner.archived{background:var(--well);color:var(--dim)}
+[data-archived="true"] .banner.archived{display:flex}
+.banner .btn{margin-left:auto;height:26px;font-size:12px}
+
+/* ---- loading skeleton and empty states */
+.sk{border-radius:7px;background:linear-gradient(90deg,var(--well) 0%,var(--well-hi) 40%,var(--well) 80%) 0 0/300% 100%;animation:sk 1.4s linear infinite}
+@keyframes sk{to{background-position:-150% 0}}
+.skel .crumb,.skel .ttl,.skel textarea,.skel .bar>*:not(.stat){visibility:hidden}
+.skel .lines i{border-radius:7px;background:linear-gradient(90deg,var(--well) 0%,var(--well-hi) 40%,var(--well) 80%) 0 0/300% 100%;animation:sk 1.4s linear infinite}
+.lines{display:none;position:absolute;inset:-34px 2px auto;flex-direction:column;gap:12px}
+.lines i:first-child{height:24px;margin-bottom:10px}
+.skel .lines{display:flex}
+.lines i{height:13px;display:block}
+.gone{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--dim)}
+.gone h1{font-size:16px;font-weight:600;color:var(--ink);margin:0 0 6px}
+body.is-gone .gone{display:flex} body.is-gone .top,body.is-gone .scroll,body.is-gone .bar{display:none}
+.toast{position:fixed;left:50%;bottom:64px;transform:translate(-50%,8px);opacity:0;pointer-events:none;background:#0a0a0b;box-shadow:0 0 0 .5px rgba(255,255,255,.1),0 12px 30px rgba(0,0,0,.5);padding:8px 13px;border-radius:9px;font-size:12.5px;transition:.18s var(--ease)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body class="skel" data-kind="email" data-status="drafting">
+
+<div class="top" role="banner">
+  <div class="crumb">
+    <div class="more">
+      <button class="kb" id="kindBtn" aria-haspopup="menu" aria-expanded="false" title="Email"><svg viewBox="0 0 24 24" id="kindIc"></svg><span id="kindWord"></span></button>
+      <div class="menu left" id="kindMenu" role="menu"></div>
+    </div>
+    <span class="sep">›</span>
+    <label class="path p-where"><input id="f-where" aria-label="Where it goes" data-f="where" autocomplete="off" spellcheck="false" placeholder="Where it goes"></label>
+    <label class="path p-to"><span class="pl">To</span><input id="f-to" data-f="to" autocomplete="off" spellcheck="false" placeholder="Who it's for"></label>
+    <div class="fromwrap">
+      <button class="from" id="fromBtn" aria-haspopup="dialog" aria-expanded="false" title="Which account it's sent from">from <b id="fromName">your usual</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="menu" id="fromMenu" role="dialog" aria-label="Send from">
+        <div class="h">Send from</div>
+        <div class="why" id="fromWhy"></div>
+        <div id="fromList"></div>
+        <label class="other"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><input id="fromOther" aria-label="Another account" autocomplete="off" spellcheck="false" placeholder="Another account"></label>
+        <input type="hidden" id="f-from" data-f="from">
+      </div>
+    </div>
+    <span class="p-note">Note</span>
+  </div>
+  <div class="who" id="who"><i></i><span id="whoText" role="status" aria-live="polite">Loading…</span></div>
+  <div class="more">
+    <button class="ibtn" id="moreBtn" aria-label="More" title="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
+    <div class="menu" id="menu">
+      <button data-act="copyAll"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy everything</button>
+      <button data-act="cc" class="m-cc"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M3 20a6 6 0 0 1 12 0M17 8v6M14 11h6"/></svg>Add Cc or Bcc</button>
+      <hr class="m-mail">
+      <a id="outlookLink" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>Open Outlook web</a>
+      <button data-act="mail"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>Open in Mail</button>
+      <hr>
+      <button data-act="sent"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg><span id="sentLabel">Rowan as sent</span></button>
+      <button data-act="archive"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/></svg><span id="archiveLabel">Archive</span></button>
+      <button data-act="delete" class="bad"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Delete draft</button>
+    </div>
+  </div>
+</div>
+
+<div class="scroll" role="main" id="draft-content"><h1 class="a11y-only">Draft</h1><div class="paper">
+  <div class="banner ready"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg><span id="readyText">Approved. Tell your agent to send it.</span><button class="btn" data-act="unapprove">Undo</button></div>
+  <div class="banner sent"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg><span id="sentText">Sent</span><a id="sentLink" target="_blank" rel="noopener" hidden>Open in Notion</a></div>
+  <div class="banner archived"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/></svg><span>Archived. It's kept until you delete it.</span><button class="btn" data-act="archive">Bring back</button></div>
+  <label class="qrow cc" hidden><span>Cc</span><input id="f-cc" data-f="cc" autocomplete="off" spellcheck="false"><button class="x" data-uncc="cc" title="Remove Cc" aria-label="Remove Cc"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></label>
+  <label class="qrow cc" hidden><span>Bcc</span><input id="f-bcc" data-f="bcc" autocomplete="off" spellcheck="false"><button class="x" data-uncc="bcc" title="Remove Bcc" aria-label="Remove Bcc"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></label>
+  <textarea class="ttl" id="f-title" aria-label="Title" data-f="title" rows="1" placeholder="Untitled" autocomplete="off"></textarea>
+  <textarea class="ttl" id="f-subject" aria-label="Subject" data-f="subject" rows="1" placeholder="Subject" autocomplete="off"></textarea>
+  <div class="hint" id="hint">Worked out from the first line. <button id="keepBtn">Keep it</button><kbd>or Tab</kbd></div>
+  <div class="body">
+    <textarea id="f-body" aria-label="Draft body" data-f="body" placeholder="Write it here, or let your agent draft it while you talk."></textarea>
+    <div class="lines" aria-hidden="true"><i style="width:55%"></i><i style="width:92%"></i><i style="width:84%"></i><i style="width:88%"></i><i style="width:40%"></i><i style="width:0;height:4px"></i><i style="width:90%"></i><i style="width:76%"></i><i style="width:58%"></i></div>
+  </div>
+</div></div>
+
+<div class="bar" role="region" aria-label="Draft actions">
+  <div class="stat" id="stat"></div>
+  <button class="btn" id="copyBtn" aria-labelledby="copy-label" data-act="copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="copy-label">Copy</span></button>
+  <button class="btn primary" id="approveBtn" data-act="approve"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg><span>Approve</span><span class="k">⌘↩</span></button>
+</div>
+
+<div class="gone"><h1 id="goneTitle">That draft has gone</h1><p id="goneText">It was deleted, or the link is wrong.</p></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script src="/a11y.js"></script>
+
+<script src="/agent-colour.js"></script>
+<script>
+'use strict';
+const $=(id)=>document.getElementById(id);
+const qs=new URLSearchParams(location.search);
+const FIELDS=['title','where','to','cc','bcc','subject','from','body'];
+const inputs=Object.fromEntries(FIELDS.map(f=>[f,$('f-'+f)]));
+const KIND_WORD={email:'Email',slack:'Slack message',text:'Text',note:'Note',notion:'Notion page'};
+const KIND_SHORT={email:'Email',slack:'Slack',text:'Text',notion:'Notion',note:'Note'};
+const KIND_ICON={
+  email:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>',
+  slack:'<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  text:'<path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/>',
+  notion:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M9 16V8l6 8V8"/>',
+  note:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+};
+$('kindMenu').innerHTML=['email','slack','text','notion','note'].map(k=>`<button data-k="${k}" role="menuitemradio"><svg viewBox="0 0 24 24">${KIND_ICON[k]}</svg>${KIND_WORD[k]}</button>`).join('');
+// The big first line: the page title, or an email's subject. Slack and texts have none.
+const ttlOf=(k)=>k==='notion'||k==='note'?inputs.title:k==='email'?inputs.subject:null;
+const esc=(s)=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// A page's first line without its Markdown marks (as drafts.js firstLine).
+const firstLine=(body)=>(String(body).split('\n').map(l=>l.replace(/^\s*(#+|[-*•]|\d+\.|- \[[ x]\])\s+/i,'').trim()).find(Boolean)||'').slice(0,80);
+let d=null;              // the draft as the server last told us
+const dirty=new Set();   // fields typed here and not yet saved
+let saving=null, saveTimer=0, es=null, agentTimer=0;
+
+/* ---------- network */
+const api=(p,o={})=>fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})}}).then(async r=>{ const j=await r.json().catch(()=>({})); if(!r.ok)throw Object.assign(new Error(j.error||r.status),{status:r.status}); return j; });
+
+async function start(){
+  try{
+    let id=qs.get('id');
+    if(!id){ // /draft?new=email: make one, then become its address so the tab can come back to it
+      const kind=['email','slack','text','note','notion'].includes(qs.get('new'))?qs.get('new'):'email';
+      const r=await api('/api/drafts',{method:'POST',body:JSON.stringify({kind})});
+      id=r.draft.id; history.replaceState(null,'','/draft?id='+id);
+      take(r.draft,{first:true});
+    }else{
+      const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),8000);
+      try{
+        const r=await api('/api/drafts/'+encodeURIComponent(id),{signal:controller.signal});
+        if(controller.signal.aborted)throw new Error('Offline · the connection timed out.');
+        take(r.draft,{first:true});
+      }catch(e){ if(controller.signal.aborted)throw new Error('Offline · the connection timed out.'); throw e; }
+      finally{ clearTimeout(timer); }
+    }
+    listen();
+    if(!d.body&&!d.to)(d.kind==='notion'||d.kind==='note'?inputs.title:inputs.to).focus();
+  }catch(e){ gone(e.status===404?null:e); }
+}
+function gone(err){ document.body.classList.add('is-gone'); document.title='Draft';
+  if(err){ $('goneTitle').textContent='Can\'t reach Meridian'; $('goneText').textContent='The Home Mac may be asleep. '+(err.message||''); } }
+
+function listen(){
+  es?.close();
+  es=new EventSource('/api/drafts/'+d.id+'/stream');
+  es.addEventListener('draft',e=>{ try{ take(JSON.parse(e.data)); }catch{} });
+  es.onerror=()=>{ if(es.readyState===2)setTimeout(listen,3000); };
+}
+
+/* ---------- applying the server's copy */
+function take(n,{first=false}={}){
+  if(d&&n.rev<=d.rev&&!first)return;
+  const prev=d; d=n;
+  document.body.classList.remove('skel');
+  document.body.dataset.kind=n.kind; document.body.dataset.status=n.status; document.body.dataset.archived=String(!!n.archived);
+  kindUI(n.kind);
+  if(n.lastBy&&n.lastBy!=='you')document.body.style.setProperty('--agent',agentColour(n.lastBy));
+  for(const f of FIELDS){
+    const el=inputs[f], nv=f==='title'&&!n.named?'':n[f]||''; if(dirty.has(f)||el.value===nv)continue;
+    const focused=document.activeElement===el, at=el.selectionStart;
+    el.value=nv;
+    if(focused){ const p=Math.min(at,el.value.length); el.setSelectionRange(p,p); }
+    if(!first&&n.lastBy!=='you'&&(n.lastFields||[]).includes(f))flash(el);
+  }
+  if(n.cc)showCc('cc'); if(n.bcc)showCc('bcc');
+  grow();
+  if(!first&&prev&&n.lastBy!=='you'&&n.rev>prev.rev)agentEdited(n);
+  else if(!agentTimer)setWho(dirty.size?'Editing':first?(n.createdBy&&n.createdBy!=='you'?'Started by '+agentName(n.createdBy):'Draft'):'Saved',first?'':'saved');
+  render();
+}
+const agentName=(n)=>!n||n==='agent'?'Your agent':n;
+const fieldWord={to:'the recipients',cc:'Cc',bcc:'Bcc',subject:'the subject',body:'the message',kind:'the kind',title:'the title',status:'the status',where:'where it goes',from:'the account',space:'the label',sentUrl:'the link',archived:'the archive'};
+function agentEdited(n){
+  const what=(n.lastFields||[]).filter(f=>f!=='status'&&f!=='fromWhy').map(f=>fieldWord[f]||f);
+  const txt=n.lastFields?.includes('status')&&n.status==='sent'?(n.kind==='notion'?'published it':'sent it'):what.length?'changed '+what.slice(0,2).join(' and '):'edited it';
+  setWho(agentName(n.lastBy)+' '+txt,'agent');
+  clearTimeout(agentTimer); agentTimer=setTimeout(()=>{ agentTimer=0; const base=agentName(n.lastBy)+' '+txt; setWho(base+' · '+ago(n.updated),''); $('who').dataset.base=base; },6000);
+}
+function flash(el){ const t=el.closest('.path,.qrow')||(el===inputs.from?$('fromBtn'):el); t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); }
+function setWho(text,cls){ const w=$('who'); w.className='who'+(cls?' '+cls:''); delete w.dataset.base; $('whoText').textContent=text; }
+function ago(iso){ const s=(Date.now()-Date.parse(iso))/1000; return s<45?'just now':s<3600?Math.round(s/60)+' min ago':new Date(iso).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+
+/* ---------- the bottom line, banners, title */
+function render(){
+  if(!d)return;
+  const v=vals();
+  const words=(v.body.match(/\S+/g)||[]).length;
+  const count=d.kind==='text'?`${v.body.length} characters`:`${words} word${words===1?'':'s'}`;
+  $('stat').innerHTML=`<b>${KIND_WORD[d.kind]}</b> · ${count}`;
+  const fb=$('fromBtn'); $('fromName').textContent=v.from.trim()||'your usual'; fb.classList.toggle('unset',!v.from.trim());
+  fb.title=v.from.trim()?'Sent from '+v.from.trim()+(d.fromWhy?'. '+d.fromWhy:''):'Which account it\'s sent from';
+  hint(); growT(ttlOf(d.kind)); fit(inputs.to); fit(inputs.where);
+  const title=(d.named&&d.title)||autoTitle(v);
+  document.title=title;
+  $('copyBtn').querySelector('span').textContent=d.kind==='email'?'Copy text':d.kind==='note'||d.kind==='notion'?'Copy':'Copy message';
+  const ap=$('approveBtn'); ap.hidden=d.kind==='note'||d.status==='sent';
+  ap.classList.toggle('primary',d.status!=='ready'); ap.classList.toggle('done',d.status==='ready');
+  ap.querySelector('span').textContent=d.status==='ready'?'Approved':'Approve';
+  const verb=d.kind==='notion'?'publish':'send';
+  $('readyText').textContent=d.lastBy&&d.lastBy!=='you'?'Approved. '+agentName(d.lastBy)+' can '+verb+' it now.':'Approved. Tell your agent to '+verb+' it.';
+  $('sentLabel').textContent=d.kind==='notion'?'Rowan as published':'Rowan as sent';
+  $('archiveLabel').textContent=d.archived?'Bring back from the archive':'Archive';
+  const sl=$('sentLink'); sl.hidden=!d.sentUrl; if(d.sentUrl){ sl.href=d.sentUrl; sl.textContent=/notion\.(so|com)/.test(d.sentUrl)?'Open in Notion':'Open'; }
+  $('sentText').textContent=(d.kind==='notion'?'Published':'Sent')+(d.sentAt?' at '+new Date(d.sentAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'')+(d.lastBy&&d.lastBy!=='you'?' by '+agentName(d.lastBy):'');
+  const ol=new URL('https://outlook.office.com/mail/deeplink/compose');
+  for(const k of ['to','cc','bcc','subject','body'])if(v[k])ol.searchParams.set(k,v[k]);
+  $('outlookLink').href=ol.href;
+  $('outlookLink').style.display=document.querySelector('[data-act="mail"]').style.display=document.querySelector('.m-mail').style.display=d.kind==='email'?'':'none';
+  // Cc and Bcc both open: the menu item has nothing left to add.
+  document.querySelector('.m-cc').style.display=d.kind==='email'&&[...document.querySelectorAll('.qrow')].some(r=>r.hidden)?'':'none';
+}
+function autoTitle(v){ const to=v.to.split(/[,;]/)[0].replace(/<[^>]*>/g,'').trim();
+  if(d.kind==='notion')return v.title.trim()||firstLine(v.body)||(v.where.trim()?'Page for '+v.where.trim():'Notion page');
+  if(d.kind==='email')return v.subject.trim()||(to?'Email to '+to:'New email');
+  if(d.kind==='slack')return to?'Slack to '+to:'Slack message';
+  if(d.kind==='text')return to?'Text to '+to:'Text message';
+  return v.title.trim()||firstLine(v.body).slice(0,60)||'Note'; }
+const vals=()=>Object.fromEntries(FIELDS.map(f=>[f,inputs[f].value]));
+function grow(){ const t=inputs.body; t.style.height='auto'; t.style.height=Math.max(260,t.scrollHeight+4)+'px'; }
+function showCc(which){ for(const f of which?[which]:['cc','bcc'])inputs[f].closest('.qrow').hidden=false; }
+function kindUI(k){ for(const b of $('kindMenu').children)b.setAttribute('aria-checked',String(b.dataset.k===k)); $('kindIc').innerHTML=KIND_ICON[k]; $('kindWord').textContent=KIND_SHORT[k]; $('kindBtn').title=KIND_WORD[k]+': change'; }
+// The path in the breadcrumb is as wide as what's in it, not the whole bar.
+function fit(el){ const m=fit.m||(fit.m=Object.assign(document.createElement('span'),{style:'position:absolute;visibility:hidden;white-space:pre;font:500 12.5px var(--f)'})); if(!m.isConnected)document.body.appendChild(m);
+  m.style.font=getComputedStyle(el).font; m.textContent=el.value||el.placeholder; el.style.width=Math.ceil(m.getBoundingClientRect().width+4)+'px'; }
+function growT(t){ if(t&&t.offsetParent){ t.style.height='auto'; t.style.height=t.scrollHeight+'px'; } }
+// The title, when there isn't one, is worked out from the first line: shown grey, and Tab or Keep it makes it real.
+const guessed=()=>d&&(d.kind==='notion'||d.kind==='note')&&!inputs.title.value.trim()?firstLine(inputs.body.value):'';
+function hint(){ const g=guessed(); inputs.title.placeholder=g||'Untitled'; $('hint').classList.toggle('on',Boolean(g)); }
+function keepGuess(){ const g=guessed(); if(!g)return false; const t=inputs.title; t.value=g; t.dispatchEvent(new Event('input')); t.focus(); t.setSelectionRange(g.length,g.length); return true; }
+let knownFrom=null; // accounts used before, for the From menu
+async function fromMenu(){
+  const m=$('fromMenu'), why=d.fromWhy&&d.from?`${esc(agentName(d.fromBy||d.createdBy))} picked ${esc(d.from)}: ${esc(d.fromWhy)}`:'';
+  $('fromWhy').innerHTML=why; $('fromWhy').hidden=!why;
+  if(!knownFrom)knownFrom=await api('/api/drafts?all=1&limit=200').then(r=>[...new Set(r.drafts.map(x=>x.from).filter(Boolean))]).catch(()=>[]);
+  const list=[...new Set([d.from,...knownFrom].filter(Boolean))];
+  $('fromList').innerHTML=list.map(a=>`<button data-from="${esc(a)}" aria-pressed="${a===d.from}"><svg viewBox="0 0 24 24">${KIND_ICON.email}</svg>${esc(a)}</button>`).join('')
+    +(list.length?'':'<div class="why" style="color:var(--dim)">Your agent sends from its usual account unless it picks one.</div>');
+}
+function setFrom(v){ if(v===inputs.from.value)return; inputs.from.value=v; inputs.from.dispatchEvent(new Event('input')); if(!knownFrom?.includes(v))knownFrom?.push(v); }
+
+/* ---------- saving what Owner types */
+for(const f of FIELDS)inputs[f].addEventListener('input',()=>{ dirty.add(f); if(f==='body')grow(); if(f==='title'||f==='subject'){ const t=inputs[f]; if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' '); growT(t); } render(); setWho('Editing',''); clearTimeout(saveTimer); saveTimer=setTimeout(save,450); });
+async function save(patch){
+  if(!d)return;
+  if(saving){ await saving.catch(()=>{}); if(!patch&&!dirty.size)return; }
+  const body=patch||{}; const sent={};
+  if(!patch)for(const f of dirty){ body[f]=sent[f]=inputs[f].value; }
+  if(!Object.keys(body).length)return;
+  saving=api('/api/drafts/'+d.id,{method:'PATCH',body:JSON.stringify({...body,by:'you'})}).then(r=>{
+    for(const [f,v] of Object.entries(sent))if(inputs[f].value===v)dirty.delete(f);
+    take(r.draft);
+    if(dirty.size){ clearTimeout(saveTimer); saveTimer=setTimeout(save,300); }
+    else if(!agentTimer)setWho('Saved','saved');
+  }).catch(e=>{ setWho('Not saved, trying again','err'); clearTimeout(saveTimer); saveTimer=setTimeout(save,3000); throw e; }).finally(()=>{ saving=null; });
+  return saving;
+}
+async function flush(){ clearTimeout(saveTimer); if(dirty.size)await save(); else if(saving)await saving.catch(()=>{}); }
+
+/* ---------- copying */
+function htmlOf(text){ // paragraphs and "- " bullets, so a paste into Outlook keeps its shape
+  const esc=(s)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return text.trim().split(/\n{2,}/).map(p=>{ const ls=p.split('\n');
+    if(ls.every(l=>/^\s*[-•*]\s+/.test(l)))return '<ul>'+ls.map(l=>'<li>'+esc(l.replace(/^\s*[-•*]\s+/,''))+'</li>').join('')+'</ul>';
+    return '<p>'+ls.map(esc).join('<br>')+'</p>'; }).join('');
+}
+async function copy(text,{html,label='Copied',btn}={}){
+  if(!text.trim()){ toast('Nothing to copy yet'); return; }
+  try{
+    if(html&&window.ClipboardItem)await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([text],{type:'text/plain'}),'text/html':new Blob([html],{type:'text/html'})})]);
+    else await navigator.clipboard.writeText(text);
+  }catch{ const t=document.createElement('textarea'); t.value=text; t.style.cssText='position:fixed;opacity:0'; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  if(btn){ const s=btn.querySelector('span'); if(s){ const was=s.textContent; btn.classList.add('done'); s.textContent=label; setTimeout(()=>{ btn.classList.remove('done'); render(); if(s.textContent===label)s.textContent=was; },1400); } else toast(label); }
+  else toast(label);
+}
+function everything(){ const v=vals(); const out=[];
+  if(d.kind==='email'){ if(v.from)out.push('From: '+v.from); if(v.to)out.push('To: '+v.to); if(v.cc)out.push('Cc: '+v.cc); if(v.bcc)out.push('Bcc: '+v.bcc); if(v.subject)out.push('Subject: '+v.subject); }
+  else if(d.kind==='notion'||d.kind==='note'){ if(v.title)out.push('# '+v.title); }
+  else if(v.to&&d.kind!=='note')out.push('To: '+v.to);
+  return (out.length?out.join('\n')+'\n\n':'')+v.body.trim(); }
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),1600); }
+
+/* ---------- actions */
+async function setStatus(status){ await flush(); await save({status}); }
+const ACT={
+  copy:(b)=>{ const v=vals(); copy(v.body.trim(),{html:d.kind==='email'?htmlOf(v.body):null,btn:b}); },
+  copyAll:()=>copy(everything(),{label:'Copied everything'}),
+  approve:()=>setStatus(d.status==='ready'?'drafting':'ready'),
+  unapprove:()=>setStatus('drafting'),
+  sent:()=>setStatus('sent'),
+  archive:async()=>{ await flush(); await save({archived:!d.archived}); toast(d.archived?'Archived. Find it under Archived drafts':'Back in your drafts'); },
+  cc:()=>{ showCc(); render(); (inputs.cc.value?inputs.bcc:inputs.cc).focus(); },
+  mail:()=>{ const v=vals(); const q=new URLSearchParams(); for(const k of ['cc','bcc','subject','body'])if(v[k])q.set(k,v[k]);
+    location.href='mailto:'+encodeURIComponent(v.to.trim()).replace(/%2C/gi,',').replace(/%40/g,'@')+'?'+q.toString().replace(/\+/g,'%20'); },
+  delete:async()=>{ if(!confirm('Delete this draft?'))return; await api('/api/drafts/'+d.id,{method:'DELETE'}); es?.close(); document.body.classList.add('is-gone'); $('goneTitle').textContent='Deleted'; $('goneText').textContent='You can close this tab.'; window.close(); },
+};
+document.addEventListener('click',e=>{
+  // Three menus: More, the kind (the icon at the start of the breadcrumb) and From.
+  const opener={moreBtn:'menu',kindBtn:'kindMenu',fromBtn:'fromMenu'};
+  const ob=e.target.closest('#moreBtn,#kindBtn,#fromBtn');
+  for(const [b,m] of Object.entries(opener)){
+    const el=$(m), mine=ob&&ob.id===b, inside=e.target.closest('#'+m);
+    const open=mine?!el.classList.contains('open'):inside&&!e.target.closest('button,a')?el.classList.contains('open'):false;
+    el.classList.toggle('open',open); $(b).setAttribute('aria-expanded',String(open));
+    if(open&&mine){ const ready=b==='fromBtn'?fromMenu():Promise.resolve(); if(e.detail===0)ready.then(()=>el.querySelector('button,a,input')?.focus()); }
+  }
+  if(ob)return;
+  const k=e.target.closest('#kindMenu [data-k]'); if(k&&d){ if(k.dataset.k!==d.kind){ d.kind=k.dataset.k; document.body.dataset.kind=d.kind; kindUI(d.kind); render(); save({kind:d.kind}); } return; }
+  const fr=e.target.closest('[data-from]'); if(fr){ setFrom(fr.dataset.from); return; }
+  if(e.target.closest('#keepBtn')){ keepGuess(); return; }
+  const un=e.target.closest('[data-uncc]'); if(un){ e.preventDefault(); const f=un.dataset.uncc; if(inputs[f].value){ inputs[f].value=''; inputs[f].dispatchEvent(new Event('input')); } inputs[f].closest('.qrow').hidden=true; render(); return; }
+  const a=e.target.closest('[data-act]'); if(a&&d&&ACT[a.dataset.act])ACT[a.dataset.act](a);
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&d&&d.kind!=='note'&&d.status!=='sent'){ e.preventDefault(); ACT.approve(); }
+  if(e.key==='Escape')for(const [m,b] of [['menu','moreBtn'],['kindMenu','kindBtn'],['fromMenu','fromBtn']]){ if($(m).classList.contains('open'))$(b).focus(); $(m).classList.remove('open'); $(b).setAttribute('aria-expanded','false'); }
+  const menu=e.target.closest('.menu.open'); if(menu&&['ArrowDown','ArrowUp','Home','End'].includes(e.key)&&!e.target.matches('input')){ const items=[...menu.querySelectorAll('button,a[href]')].filter(b=>b.getClientRects().length),i=items.indexOf(e.target); e.preventDefault(); items[e.key==='Home'?0:e.key==='End'?items.length-1:(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus(); }
+});
+// Title and words behave like one page, as in Notion: Enter or ↓ at the end of
+// the title goes into the words; Backspace at their very start, or ↑ on their
+// first line, comes back up. A title can't take a paragraph with it.
+for(const t of [inputs.title,inputs.subject])t.addEventListener('keydown',e=>{
+  if(e.isComposing||e.metaKey||e.ctrlKey||e.altKey)return;
+  const end=t.selectionStart===t.value.length&&t.selectionEnd===t.value.length;
+  if(e.key==='Enter'||(e.key==='ArrowDown'&&end&&!e.shiftKey)){ e.preventDefault(); inputs.body.focus(); inputs.body.setSelectionRange(0,0); }
+  else if(e.key==='Tab'&&!e.shiftKey&&t===inputs.title&&keepGuess())e.preventDefault();
+});
+inputs.body.addEventListener('keydown',e=>{
+  const t=d&&ttlOf(d.kind), b=inputs.body; if(!t||e.isComposing||e.metaKey||e.ctrlKey||e.altKey||e.shiftKey||b.selectionStart!==b.selectionEnd)return;
+  const up=()=>{ t.focus(); t.setSelectionRange(t.value.length,t.value.length); };
+  if((e.key==='Backspace'||e.key==='ArrowUp')&&b.selectionStart===0){ e.preventDefault(); up(); }
+  // ↑ on the first line: the caret jumps to the start, so carry on up to the title.
+  else if(e.key==='ArrowUp'&&!b.value.slice(0,b.selectionStart).includes('\n'))requestAnimationFrame(()=>{ if(document.activeElement===b&&b.selectionStart===0)up(); });
+});
+$('fromOther').addEventListener('keydown',e=>{ const v=e.target.value.trim(); if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); if(v)setFrom(v); e.target.value=''; $('fromMenu').classList.remove('open'); $('fromBtn').setAttribute('aria-expanded','false'); } });
+addEventListener('resize',()=>{ if(d)growT(ttlOf(d.kind)); });
+// Enter in the breadcrumb or Cc moves on to the title, like a mail window.
+for(const f of ['where','to','cc','bcc'])inputs[f].addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.metaKey&&!e.ctrlKey&&!e.isComposing){ e.preventDefault(); (d&&ttlOf(d.kind)||inputs.body).focus(); } });
+addEventListener('pagehide',()=>{ flush(); });
+// Keep "Dot changed the subject · 2 min ago" current.
+setInterval(()=>{ const w=$('who'); if(d&&!agentTimer&&w.dataset.base)$('whoText').textContent=w.dataset.base+' · '+ago(d.updated); },30000);
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "profile": { "version": 1, "kind": "empty" },
+  "connectors": {},
+  "port": 4980,
+  "refreshSeconds": 45,
+  "machine": "Local",
+  "location": {
+    "name": "Your location"
+  },
+  "token": "",
+  "mcpToken": "",
+  "board": {
+    "dir": "./data/empty-input/board"
+  },
+  "fleet": {
+    "services": [],
+    "sites": []
+  },
+  "git": {
+    "roots": []
+  },
+  "brain": {
+    "graphPath": "./data/empty-input/graph.json"
+  },
+  "threads": {
+    "url": "",
+    "configPath": "./data/empty-input/threads.json"
+  },
+  "vaultInbox": "./data/inbox",
+  "calendar": { "icsUrl": "", "icsUrls": [], "workEmail": "", "selfEmails": [], "windowDays": 7, "refreshMinutes": 10 },
+  "tailscale": { "hostname": "" },
+  "ledger": { "dir": "./ledger", "schedule": "" },
+  "meetings": { "dir": "" },
+  "exampleappFeedback": { "stateFile": "./data/empty-input/exampleapp-state.json", "cli": "./data/empty-input/connector-not-installed.mjs", "node": "" },
+  "campaignSnapshot": { "dashboardUrl": "", "dashboardPage": "", "refreshMinutes": 10 },
+  "journal": { "vaultDir": "./data/journal/daybook", "tracks": { "uni": [], "work": [] }, "areas": ["Uni", "Work", "Meridian", "Personal"], "areaAliases": [] },
+  "notify": { "provider": "ntfy", "url": "https://ntfy.sh", "topic": "disabled-local-placeholder", "enabled": false, "events": [], "muted": [], "quiet": { "on": true, "from": "23:00", "to": "08:00" } },
+  "nudges": { "enabled": false, "minutes": [10, 1], "skip": [] },
+  "capture": { "to": "stash" },
+  "stash": { "summary": { "engine": "off", "model": "", "command": [] }, "agentHiddenSpaces": ["private"] },
+  "delegations": { "sandboxPreviews": false },
+  "tell": { "model": "sonnet" },
+  "voice": { "dailyCalls": 12, "maxMinutes": 15, "idleMinutes": 3 },
+  "preferences": { "sources": [] },
+  "money": { "approvedClaims": {}, "agentUrl": "http://127.0.0.1:4980" },
+  "heartHealth": {},
+  "links": { "categories": ["Work", "Meridian", "Tools", "Personal"], "categoryRules": [] }
+
+}

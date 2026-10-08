@@ -1,0 +1,16 @@
+[
+  "meridian_overview",
+  "draft_create",
+  "draft_get",
+  "draft_update",
+  "draft_mark_sent",
+  "draft_list",
+  "draft_history",
+  "draft_open",
+  "panel_open_url",
+  "todo_add",
+  "stash_search",
+  "stash_get",
+  "stash_spaces",
+  "note_add"
+]
