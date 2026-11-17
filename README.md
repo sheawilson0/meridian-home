@@ -1,6 +1,6 @@
 # Meridian
 
-Meridian is a personal command centre that runs on your own computer. Your calendar, to-dos, links, notes and drafts sit on one page, next to the AI agents doing work for you. Nothing leaves your machine unless you connect it to something.
+Meridian runs on your own computer. Your calendar, to-dos, links, notes and drafts sit on one page, next to the AI agents doing work for you. Nothing leaves your machine unless you connect it to something.
 
 ![Meridian's Home page, with a made-up calendar and to-do list](docs/images/home.jpg)
 
@@ -22,8 +22,8 @@ I built it for myself, as my final-year design project at Ulster University, and
 You need [Node.js](https://nodejs.org) 22 or newer. There's nothing to install and no build step.
 
 ```sh
-git clone https://github.com/example0/meridian-command-centre.git
-cd meridian-command-centre
+git clone https://github.com/sheawilson0/meridian-home.git
+cd meridian-home
 node server.js
 ```
 
@@ -61,7 +61,7 @@ Meridian speaks MCP at `/mcp`. Agents on the same computer can connect straight 
 **Claude Code**, through the small bridge in this repo:
 
 ```sh
-claude mcp add meridian -- node /path/to/meridian-command-centre/scripts/meridian-mcp.js
+claude mcp add meridian -- node /path/to/meridian-home/scripts/meridian-mcp.js
 ```
 
 **Codex**, in `~/.codex/config.toml`:
@@ -69,7 +69,7 @@ claude mcp add meridian -- node /path/to/meridian-command-centre/scripts/meridia
 ```toml
 [mcp_servers.meridian]
 command = "node"
-args = ["/path/to/meridian-command-centre/scripts/meridian-mcp.js"]
+args = ["/path/to/meridian-home/scripts/meridian-mcp.js"]
 ```
 
 To give an agent its own key with limited permissions, make a grant:
@@ -102,4 +102,4 @@ Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explain
 
 MIT, see [LICENSE](LICENSE). The fonts, planet textures and session recorder come from other people and keep their own licences; [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) lists them.
 
-Made by [the owner](https://github.com/example0).
+Made by [Shea Wilson](https://sheawilson.uk).
